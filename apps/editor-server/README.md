@@ -1,0 +1,105 @@
+# Editor Server
+
+Backend server for the editor file explorer functionality.
+
+## Tech Stack
+
+- **Koa.js** - Web framework
+- **TypeScript** - Type safety
+- **pnpm** - Package manager
+
+## Features
+
+- File tree API endpoints
+- File content read/write
+- Recursive directory traversal
+- Path security validation
+
+## API Endpoints
+
+### GET `/api/files`
+Get list of files and folders in a directory.
+
+**Query Parameters:**
+- `path` (optional): Directory path. Defaults to workspace root.
+
+**Response:**
+```json
+[
+  {
+    "id": "string",
+    "name": "string",
+    "type": "file" | "folder",
+    "path": "string",
+    "children": [] // only for folders
+  }
+]
+```
+
+### GET `/api/files/content`
+Get content of a file.
+
+**Query Parameters:**
+- `path` (required): File path.
+
+**Response:**
+```json
+{
+  "content": "string"
+}
+```
+
+### POST `/api/files/content`
+Save content to a file.
+
+**Body:**
+```json
+{
+  "path": "string",
+  "content": "string"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true
+}
+```
+
+### GET `/api/files/tree`
+Get recursive file tree structure.
+
+**Query Parameters:**
+- `path` (optional): Root directory path. Defaults to workspace root.
+- `maxDepth` (optional): Maximum depth for recursion. Defaults to 3.
+
+**Response:**
+```json
+{
+  "id": "string",
+  "name": "string",
+  "type": "folder",
+  "path": "string",
+  "children": [...]
+}
+```
+
+## Environment Variables
+
+- `PORT` - Server port (default: 3001)
+- `WORKSPACE_ROOT` - Root directory for file operations (default: current working directory)
+
+## Development
+
+```bash
+pnpm dev
+```
+
+## Build
+
+```bash
+pnpm build
+pnpm start
+```
+
