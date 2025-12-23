@@ -87,8 +87,32 @@ Get recursive file tree structure.
 
 ## Environment Variables
 
+Create a `.env` file in the `apps/editor-server` directory (or copy from `.env.example`):
+
+```bash
+cp .env.example .env
+```
+
+### Configuration Options
+
 - `PORT` - Server port (default: 3001)
 - `WORKSPACE_ROOT` - Root directory for file operations (default: current working directory)
+- `CORS_ORIGIN` - Allowed CORS origins. Use `*` for all origins, or specify comma-separated URLs (default: `*`)
+- `CORS_CREDENTIALS` - Enable CORS credentials (cookies, authorization headers) (default: `true`)
+
+### Example `.env` file
+
+```env
+PORT=3001
+WORKSPACE_ROOT=.
+CORS_ORIGIN=*
+CORS_CREDENTIALS=true
+```
+
+For production, set `CORS_ORIGIN` to specific allowed origins:
+```env
+CORS_ORIGIN=http://localhost:5173,https://yourdomain.com
+```
 
 ## Development
 

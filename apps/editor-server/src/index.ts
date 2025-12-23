@@ -1,3 +1,7 @@
+// Load environment variables
+import dotenv from 'dotenv';
+dotenv.config();
+
 import Koa from 'koa';
 import Router from '@koa/router';
 import cors from '@koa/cors';
@@ -22,6 +26,21 @@ interface FileNode {
 
 // Get the workspace root directory (adjust as needed)
 const WORKSPACE_ROOT = process.env.WORKSPACE_ROOT || process.cwd();
+
+// CORS configuration
+const CORS_ORIGIN_ENV = process.env.CORS_ORIGIN || '*';
+const CORS_ORIGINS = CORS_ORIGIN_ENV === '*' 
+  ? ['*'] 
+  : CORS_ORIGIN_ENV.includes(',') 
+    ? CORS_ORIGIN_ENV.split(',').map(origin => origin.trim())
+    : [CORS_ORIGIN_ENV];
+const CORS_ORIGIN = CORS_ORIGINS.length === 1 && CORS_ORIGINS[0] === '*'
+  ? '*'
+  : (ctx: any) => {
+      const origin = ctx.headers.origin;
+      return origin && CORS_ORIGINS.includes(origin) ? origin : CORS_ORIGINS[0];
+    };
+const CORS_CREDENTIALS = process.env.CORS_CREDENTIALS === 'true';
 
 // Helper function to generate a unique ID from path
 function pathToId(path: string): string {
@@ -195,8 +214,8 @@ router.get('/api/files/tree', async (ctx) => {
 
 // Middleware
 app.use(cors({
-  origin: '*', // In production, specify allowed origins
-  credentials: true,
+  origin: CORS_ORIGIN,
+  credentials: CORS_CREDENTIALS,
 }));
 
 app.use(bodyParser());
@@ -210,10 +229,12 @@ app.on('error', (err, ctx) => {
   ctx.body = { error: 'Internal server error' };
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = parseInt(process.env.PORT || '3001', 10);
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log(`📁 Workspace root: ${WORKSPACE_ROOT}`);
+  console.log(`🌐 CORS origin: ${CORS_ORIGIN_ENV}`);
+  console.log(`🔐 CORS credentials: ${CORS_CREDENTIALS}`);
 });
 

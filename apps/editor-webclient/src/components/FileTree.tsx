@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useEditorStore, type FileNode } from '../store/useEditorStore';
 
 interface FileTreeItemProps {
@@ -14,7 +15,7 @@ function FileTreeItem({ file, level }: FileTreeItemProps) {
     if (file.type === 'folder') {
       toggleFolder(file.id);
     } else {
-      setActiveFile(file.id);
+      setActiveFile(file.id, file.path);
     }
   };
 
@@ -54,16 +55,40 @@ function FileTreeItem({ file, level }: FileTreeItemProps) {
 
 export function FileTree() {
   const files = useEditorStore((state) => state.files);
+  const isLoading = useEditorStore((state) => state.isLoading);
+  const error = useEditorStore((state) => state.error);
+  const loadFiles = useEditorStore((state) => state.loadFiles);
+
+  useEffect(() => {
+    if (files.length === 0 && !isLoading) {
+      loadFiles();
+    }
+  }, [files.length, isLoading, loadFiles]);
 
   return (
-    <div className="h-full overflow-y-auto bg-[#252526] text-gray-300">
+    <div className="h-full overflow-y-auto bg-[#252526] text-gray-300 flex flex-col">
       <div className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wide border-b border-gray-700">
         Explorer
       </div>
-      <div className="py-1">
-        {files.map((file) => (
-          <FileTreeItem key={file.id} file={file} level={0} />
-        ))}
+      {error && (
+        <div className="px-3 py-2 text-red-400 text-sm bg-red-900/20 border-b border-red-700">
+          {error}
+        </div>
+      )}
+      <div className="flex-1 py-1">
+        {isLoading && files.length === 0 ? (
+          <div className="px-3 py-4 text-center text-gray-500 text-sm">
+            Loading files...
+          </div>
+        ) : files.length === 0 ? (
+          <div className="px-3 py-4 text-center text-gray-500 text-sm">
+            No files found
+          </div>
+        ) : (
+          files.map((file) => (
+            <FileTreeItem key={file.id} file={file} level={0} />
+          ))
+        )}
       </div>
     </div>
   );

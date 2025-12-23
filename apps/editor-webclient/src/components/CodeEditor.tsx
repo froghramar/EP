@@ -39,6 +39,7 @@ export function CodeEditor() {
   const activeFileContent = useEditorStore((state) => state.activeFileContent);
   const activeFileId = useEditorStore((state) => state.activeFileId);
   const files = useEditorStore((state) => state.files);
+  const isLoading = useEditorStore((state) => state.isLoading);
   const updateFileContent = useEditorStore((state) => state.updateFileContent);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
 
@@ -67,6 +68,16 @@ export function CodeEditor() {
           <div className="text-2xl mb-2">📝</div>
           <div className="text-lg mb-1">No file selected</div>
           <div className="text-sm">Select a file from the explorer to start editing</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading && !activeFileContent) {
+    return (
+      <div className="h-full w-full bg-[#1e1e1e] flex items-center justify-center text-gray-500">
+        <div className="text-center">
+          <div className="text-lg mb-1">Loading file...</div>
         </div>
       </div>
     );
