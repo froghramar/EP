@@ -9,6 +9,13 @@ export interface FileNode {
   expanded?: boolean;
 }
 
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+}
+
 interface EditorState {
   files: FileNode[];
   activeFileId: string | null;
@@ -17,7 +24,7 @@ interface EditorState {
   chatWidth: number;
   sidebarVisible: boolean;
   chatVisible: boolean;
-  chatMessages: Array<{ id: string; role: 'user' | 'assistant'; content: string; timestamp: Date }>;
+  chatMessages: ChatMessage[];
   
   setActiveFile: (fileId: string | null) => void;
   updateFileContent: (content: string) => void;
@@ -124,7 +131,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       chatMessages: [
         ...state.chatMessages,
         {
-          id: Date.now().toString(),
+          id: crypto.randomUUID(),
           role,
           content,
           timestamp: new Date(),

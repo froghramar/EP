@@ -6,7 +6,9 @@ interface FileTreeItemProps {
 }
 
 function FileTreeItem({ file, level }: FileTreeItemProps) {
-  const { setActiveFile, toggleFolder, activeFileId } = useEditorStore();
+  const setActiveFile = useEditorStore((state) => state.setActiveFile);
+  const toggleFolder = useEditorStore((state) => state.toggleFolder);
+  const activeFileId = useEditorStore((state) => state.activeFileId);
 
   const handleClick = () => {
     if (file.type === 'folder') {
@@ -51,7 +53,7 @@ function FileTreeItem({ file, level }: FileTreeItemProps) {
 }
 
 export function FileTree() {
-  const { files } = useEditorStore();
+  const files = useEditorStore((state) => state.files);
 
   return (
     <div className="h-full overflow-y-auto bg-[#252526] text-gray-300">

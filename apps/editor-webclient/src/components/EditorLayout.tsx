@@ -5,16 +5,14 @@ import { ResizablePanel } from './ResizablePanel';
 import { useEditorStore } from '../store/useEditorStore';
 
 export function EditorLayout() {
-  const {
-    sidebarWidth,
-    chatWidth,
-    sidebarVisible,
-    chatVisible,
-    setSidebarWidth,
-    setChatWidth,
-    toggleSidebar,
-    toggleChat,
-  } = useEditorStore();
+  const sidebarWidth = useEditorStore((state) => state.sidebarWidth);
+  const chatWidth = useEditorStore((state) => state.chatWidth);
+  const sidebarVisible = useEditorStore((state) => state.sidebarVisible);
+  const chatVisible = useEditorStore((state) => state.chatVisible);
+  const setSidebarWidth = useEditorStore((state) => state.setSidebarWidth);
+  const setChatWidth = useEditorStore((state) => state.setChatWidth);
+  const toggleSidebar = useEditorStore((state) => state.toggleSidebar);
+  const toggleChat = useEditorStore((state) => state.toggleChat);
 
   return (
     <div className="h-full w-full flex bg-[#1e1e1e]">

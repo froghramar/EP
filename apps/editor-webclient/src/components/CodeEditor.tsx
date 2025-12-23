@@ -36,7 +36,10 @@ function getLanguageFromFileName(fileName: string): string {
 }
 
 export function CodeEditor() {
-  const { activeFileContent, updateFileContent, activeFileId, files } = useEditorStore();
+  const activeFileContent = useEditorStore((state) => state.activeFileContent);
+  const activeFileId = useEditorStore((state) => state.activeFileId);
+  const files = useEditorStore((state) => state.files);
+  const updateFileContent = useEditorStore((state) => state.updateFileContent);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
 
   const language = useMemo(() => {

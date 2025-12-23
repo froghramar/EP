@@ -2,7 +2,8 @@ import { useEffect } from 'react';
 import { useEditorStore } from '../store/useEditorStore';
 
 export function useKeyboardShortcuts() {
-  const { toggleSidebar, toggleChat } = useEditorStore();
+  const toggleSidebar = useEditorStore((state) => state.toggleSidebar);
+  const toggleChat = useEditorStore((state) => state.toggleChat);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { useEditorStore } from '../store/useEditorStore';
 
 export function ChatPanel() {
-  const { chatMessages, addChatMessage } = useEditorStore();
+  const chatMessages = useEditorStore((state) => state.chatMessages);
+  const addChatMessage = useEditorStore((state) => state.addChatMessage);
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -14,16 +15,17 @@ export function ChatPanel() {
     scrollToBottom();
   }, [chatMessages]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!input.trim()) return;
 
-    addChatMessage('user', input);
+    const userMessage = input.trim();
+    addChatMessage('user', userMessage);
     setInput('');
 
     // Simulate assistant response (replace with actual API call)
     setTimeout(() => {
-      addChatMessage('assistant', `You said: "${input}". This is a placeholder response.`);
+      addChatMessage('assistant', `You said: "${userMessage}". This is a placeholder response.`);
     }, 500);
   };
 
