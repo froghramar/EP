@@ -112,6 +112,17 @@ export const gitApi = {
   },
 
   /**
+   * Initialize a new git repository
+   */
+  async initRepository(): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/api/git/init`, {
+      method: 'POST',
+    });
+
+    await handleResponse<{ success: boolean }>(response);
+  },
+
+  /**
    * Get git status
    */
   async getStatus(): Promise<GitStatus> {

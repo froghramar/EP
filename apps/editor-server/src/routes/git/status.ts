@@ -1,5 +1,5 @@
 import Router from '@koa/router';
-import { isGitRepository, getStatus, getCurrentBranch } from '../../utils/gitUtils';
+import { isGitRepository, getStatus, getCurrentBranch, initRepository } from '../../utils/gitUtils';
 
 const router = new Router();
 
@@ -8,6 +8,24 @@ router.get('/api/git/check', async (ctx) => {
   try {
     const isRepo = await isGitRepository();
     ctx.body = { isGitRepository: isRepo };
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+// Initialize a new git repository
+router.post('/api/git/init', async (ctx) => {
+  try {
+    const isRepo = await isGitRepository();
+    if (isRepo) {
+      ctx.status = 400;
+      ctx.body = { error: 'Already a git repository' };
+      return;
+    }
+
+    await initRepository();
+    ctx.body = { success: true };
   } catch (error) {
     ctx.status = 500;
     ctx.body = { error: error instanceof Error ? error.message : 'Unknown error' };

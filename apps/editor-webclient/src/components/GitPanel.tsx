@@ -17,6 +17,7 @@ export function GitPanel() {
   const pullChanges = useEditorStore((state) => state.pullChanges);
   const pushChanges = useEditorStore((state) => state.pushChanges);
   const checkGitRepository = useEditorStore((state) => state.checkGitRepository);
+  const initGitRepository = useEditorStore((state) => state.initGitRepository);
   
   const [commitDialogOpen, setCommitDialogOpen] = useState(false);
   const [view, setView] = useState<'changes' | 'history'>('changes');
@@ -25,12 +26,29 @@ export function GitPanel() {
     checkGitRepository();
   }, [checkGitRepository]);
 
+  const handleInitRepository = async () => {
+    if (confirm('Initialize a new Git repository in this workspace?')) {
+      try {
+        await initGitRepository();
+      } catch (error) {
+        // Error handled by store
+      }
+    }
+  };
+
   if (!isGitRepository) {
     return (
       <div className="h-full bg-[#252526] text-gray-300 flex flex-col items-center justify-center p-4">
         <div className="text-gray-500 text-center">
           <div className="text-4xl mb-4">📂</div>
-          <div className="text-sm">Not a git repository</div>
+          <div className="text-sm mb-4">Not a git repository</div>
+          <button
+            onClick={handleInitRepository}
+            disabled={isLoading}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors disabled:opacity-50"
+          >
+            {isLoading ? 'Initializing...' : 'Initialize Repository'}
+          </button>
         </div>
       </div>
     );

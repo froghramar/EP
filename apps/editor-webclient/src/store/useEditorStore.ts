@@ -71,6 +71,7 @@ interface EditorState {
   
   // Git operations
   checkGitRepository: () => Promise<void>;
+  initGitRepository: () => Promise<void>;
   loadGitStatus: () => Promise<void>;
   stageFiles: (files: string[]) => Promise<void>;
   unstageFiles: (files: string[]) => Promise<void>;
@@ -528,6 +529,21 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       }
     } catch (error) {
       set({ isGitRepository: false });
+    }
+  },
+
+  initGitRepository: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      await gitApi.initRepository();
+      set({ isGitRepository: true, isLoading: false });
+      await get().loadGitStatus();
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Failed to initialize repository',
+        isLoading: false,
+      });
+      throw error;
     }
   },
 

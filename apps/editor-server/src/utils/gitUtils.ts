@@ -29,6 +29,14 @@ export async function isGitRepository(): Promise<boolean> {
 }
 
 /**
+ * Initialize a new git repository
+ */
+export async function initRepository(): Promise<void> {
+  const git = getGit();
+  await git.init();
+}
+
+/**
  * Get git status
  */
 export async function getStatus(): Promise<StatusResult> {
