@@ -87,11 +87,7 @@ Get recursive file tree structure.
 
 ## Environment Variables
 
-Create a `.env` file in the `apps/editor-server` directory (or copy from `.env.example`):
-
-```bash
-cp .env.example .env
-```
+Create a `.env` file in the `apps/editor-server` directory:
 
 ### Configuration Options
 
@@ -99,6 +95,7 @@ cp .env.example .env
 - `WORKSPACE_ROOT` - Root directory for file operations (default: current working directory)
 - `CORS_ORIGIN` - Allowed CORS origins. Use `*` for all origins, or specify comma-separated URLs (default: `*`)
 - `CORS_CREDENTIALS` - Enable CORS credentials (cookies, authorization headers) (default: `true`)
+- `ANTHROPIC_API_KEY` - Your Anthropic API key for Claude agent (required for chat functionality)
 
 ### Example `.env` file
 
@@ -107,6 +104,7 @@ PORT=3001
 WORKSPACE_ROOT=.
 CORS_ORIGIN=*
 CORS_CREDENTIALS=true
+ANTHROPIC_API_KEY=your_api_key_here
 ```
 
 For production, set `CORS_ORIGIN` to specific allowed origins:

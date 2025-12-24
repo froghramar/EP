@@ -97,6 +97,36 @@ export interface GitBranches {
   all: string[];
 }
 
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export interface ChatResponse {
+  message: string;
+  toolsUsed?: string[];
+}
+
+export const chatApi = {
+  /**
+   * Send a message to the AI agent
+   */
+  async sendMessage(message: string, history: ChatMessage[] = []): Promise<ChatResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/chat/message`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message,
+        history,
+      }),
+    });
+
+    return handleResponse<ChatResponse>(response);
+  },
+};
+
 export const gitApi = {
   /**
    * Check if workspace is a git repository

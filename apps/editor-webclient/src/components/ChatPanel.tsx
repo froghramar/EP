@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { useEditorStore } from '../store/useEditorStore';
+import { chatApi } from '../services/api';
 
 export function ChatPanel() {
   const chatMessages = useEditorStore((state) => state.chatMessages);
   const addChatMessage = useEditorStore((state) => state.addChatMessage);
   const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -15,26 +17,49 @@ export function ChatPanel() {
     scrollToBottom();
   }, [chatMessages]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || isLoading) return;
 
     const userMessage = input.trim();
     addChatMessage('user', userMessage);
     setInput('');
+    setIsLoading(true);
 
-    // Simulate assistant response (replace with actual API call)
-    setTimeout(() => {
-      addChatMessage('assistant', `You said: "${userMessage}". This is a placeholder response.`);
-    }, 500);
+    try {
+      // Convert store messages to API format
+      const history = chatMessages.map(msg => ({
+        role: msg.role,
+        content: msg.content,
+      }));
+
+      const response = await chatApi.sendMessage(userMessage, history);
+      
+      let assistantMessage = response.message;
+      if (response.toolsUsed && response.toolsUsed.length > 0) {
+        assistantMessage += `\n\n_Tools used: ${response.toolsUsed.join(', ')}_`;
+      }
+      
+      addChatMessage('assistant', assistantMessage);
+    } catch (error) {
+      addChatMessage(
+        'assistant',
+        `Error: ${error instanceof Error ? error.message : 'Failed to get response'}`
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      if (input.trim()) {
-        addChatMessage('user', input);
-        setInput('');
+      if (input.trim() && !isLoading) {
+        // Trigger form submit
+        const form = e.currentTarget.form;
+        if (form) {
+          form.requestSubmit();
+        }
       }
     }
   };
@@ -82,14 +107,16 @@ export function ChatPanel() {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type a message... (Enter to send, Shift+Enter for new line)"
-            className="flex-1 bg-[#3c3c3c] text-gray-200 rounded px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={isLoading}
+            className="flex-1 bg-[#3c3c3c] text-gray-200 rounded px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
             rows={3}
           />
           <button
             type="submit"
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium transition-colors"
+            disabled={isLoading}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Send
+            {isLoading ? 'Thinking...' : 'Send'}
           </button>
         </div>
       </form>
