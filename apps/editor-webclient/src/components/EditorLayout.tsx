@@ -18,7 +18,7 @@ export function EditorLayout() {
   const toggleChat = useEditorStore((state) => state.toggleChat);
   const toggleGitPanel = useEditorStore((state) => state.toggleGitPanel);
   
-  const [rightPanelView, setRightPanelView] = useState<'chat' | 'git'>('git');
+  const [rightPanelView, setRightPanelView] = useState<'chat' | 'git'>('chat');
 
   return (
     <div className="h-full w-full flex bg-[#1e1e1e]">
@@ -58,16 +58,6 @@ export function EditorLayout() {
             {/* Tab selector */}
             <div className="flex border-b border-gray-700 bg-[#252526]">
               <button
-                onClick={() => setRightPanelView('git')}
-                className={`flex-1 px-3 py-2 text-sm transition-colors ${
-                  rightPanelView === 'git'
-                    ? 'bg-gray-700 text-gray-200'
-                    : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700/50'
-                }`}
-              >
-                🌿 Git
-              </button>
-              <button
                 onClick={() => setRightPanelView('chat')}
                 className={`flex-1 px-3 py-2 text-sm transition-colors ${
                   rightPanelView === 'chat'
@@ -76,6 +66,16 @@ export function EditorLayout() {
                 }`}
               >
                 💬 Chat
+              </button>
+              <button
+                onClick={() => setRightPanelView('git')}
+                className={`flex-1 px-3 py-2 text-sm transition-colors ${
+                  rightPanelView === 'git'
+                    ? 'bg-gray-700 text-gray-200'
+                    : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700/50'
+                }`}
+              >
+                🌿 Git
               </button>
             </div>
             {/* Panel content */}

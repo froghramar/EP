@@ -3,6 +3,7 @@ import { mkdir, writeFile } from 'fs/promises';
 import { dirname } from 'path';
 import { existsSync } from 'fs';
 import { isSafePath } from '../../utils/pathUtils';
+import { isRestrictedPath } from '../../utils/restrictedFolders';
 
 const router = new Router();
 
@@ -24,6 +25,12 @@ router.post('/api/files/create', async (ctx) => {
     if (!isSafePath(filePath)) {
       ctx.status = 403;
       ctx.body = { error: 'Access denied: path outside workspace' };
+      return;
+    }
+
+    if (isRestrictedPath(filePath)) {
+      ctx.status = 403;
+      ctx.body = { error: 'Access denied: cannot modify restricted folders via file APIs' };
       return;
     }
 

@@ -1,6 +1,7 @@
 import Router from '@koa/router';
 import { unlink, rm, stat } from 'fs/promises';
 import { isSafePath } from '../../utils/pathUtils';
+import { isRestrictedPath } from '../../utils/restrictedFolders';
 
 const router = new Router();
 
@@ -24,6 +25,15 @@ router.post('/api/files/bulk/delete', async (ctx) => {
             path: filePath,
             success: false,
             error: 'Access denied: path outside workspace',
+          });
+          continue;
+        }
+
+        if (isRestrictedPath(filePath)) {
+          results.push({
+            path: filePath,
+            success: false,
+            error: 'Access denied: cannot modify restricted folders',
           });
           continue;
         }

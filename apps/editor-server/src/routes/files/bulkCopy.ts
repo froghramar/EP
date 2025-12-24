@@ -4,6 +4,7 @@ import { existsSync } from 'fs';
 import { mkdir } from 'fs/promises';
 import { isSafePath } from '../../utils/pathUtils';
 import { copyRecursive } from '../../utils/fileOperations';
+import { isRestrictedPath } from '../../utils/restrictedFolders';
 
 const router = new Router();
 
@@ -33,6 +34,12 @@ router.post('/api/files/bulk/copy', async (ctx) => {
       return;
     }
 
+    if (isRestrictedPath(destination)) {
+      ctx.status = 403;
+      ctx.body = { error: 'Access denied: cannot modify restricted folders' };
+      return;
+    }
+
     // Ensure destination directory exists
     if (!existsSync(destination)) {
       await mkdir(destination, { recursive: true });
@@ -48,6 +55,16 @@ router.post('/api/files/bulk/copy', async (ctx) => {
             destination: '',
             success: false,
             error: 'Access denied: source path outside workspace',
+          });
+          continue;
+        }
+
+        if (isRestrictedPath(sourcePath)) {
+          results.push({
+            path: sourcePath,
+            destination: '',
+            success: false,
+            error: 'Access denied: cannot modify restricted folders',
           });
           continue;
         }

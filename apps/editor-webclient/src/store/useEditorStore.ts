@@ -104,7 +104,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   isGitRepository: false,
   gitStatus: null,
   gitCommits: [],
-  gitPanelVisible: true,
+  gitPanelVisible: false,
 
   loadFiles: async () => {
     set({ isLoading: true, error: null });

@@ -2,6 +2,7 @@ import Router from '@koa/router';
 import { rename } from 'fs/promises';
 import { dirname, join } from 'path';
 import { isSafePath } from '../../utils/pathUtils';
+import { isRestrictedPath } from '../../utils/restrictedFolders';
 
 const router = new Router();
 
@@ -25,12 +26,24 @@ router.patch('/api/files/rename', async (ctx) => {
       return;
     }
 
+    if (isRestrictedPath(filePath)) {
+      ctx.status = 403;
+      ctx.body = { error: 'Access denied: cannot modify restricted folders via file APIs' };
+      return;
+    }
+
     const parentDir = dirname(filePath);
     const newPath = join(parentDir, newName);
 
     if (!isSafePath(newPath)) {
       ctx.status = 403;
       ctx.body = { error: 'Access denied: new path outside workspace' };
+      return;
+    }
+
+    if (isRestrictedPath(newPath)) {
+      ctx.status = 403;
+      ctx.body = { error: 'Access denied: cannot modify restricted folders via file APIs' };
       return;
     }
 

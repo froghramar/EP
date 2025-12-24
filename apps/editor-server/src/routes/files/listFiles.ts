@@ -4,6 +4,7 @@ import { join } from 'path';
 import { FileNode } from '../../types';
 import { WORKSPACE_ROOT } from '../../config';
 import { pathToId, isSafePath } from '../../utils/pathUtils';
+import { isRestrictedFolder } from '../../utils/restrictedFolders';
 
 const router = new Router();
 
@@ -22,6 +23,11 @@ router.get('/api/files', async (ctx) => {
     const fileNodes: FileNode[] = [];
 
     for (const file of files) {
+      // Skip restricted folders
+      if (isRestrictedFolder(file)) {
+        continue;
+      }
+
       const filePath = join(rootPath, file);
       const stats = await stat(filePath);
       

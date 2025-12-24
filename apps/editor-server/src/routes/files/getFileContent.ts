@@ -1,6 +1,7 @@
 import Router from '@koa/router';
 import { stat, readFile } from 'fs/promises';
 import { isSafePath } from '../../utils/pathUtils';
+import { isRestrictedPath } from '../../utils/restrictedFolders';
 
 const router = new Router();
 
@@ -18,6 +19,12 @@ router.get('/api/files/content', async (ctx) => {
     if (!isSafePath(filePath)) {
       ctx.status = 403;
       ctx.body = { error: 'Access denied: path outside workspace' };
+      return;
+    }
+
+    if (isRestrictedPath(filePath)) {
+      ctx.status = 403;
+      ctx.body = { error: 'Access denied: cannot read restricted folder files via file APIs' };
       return;
     }
 
