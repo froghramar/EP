@@ -18,6 +18,7 @@ export function GitPanel() {
   const pushChanges = useEditorStore((state) => state.pushChanges);
   const checkGitRepository = useEditorStore((state) => state.checkGitRepository);
   const initGitRepository = useEditorStore((state) => state.initGitRepository);
+  const loadGitCommits = useEditorStore((state) => state.loadGitCommits);
   
   const [commitDialogOpen, setCommitDialogOpen] = useState(false);
   const [view, setView] = useState<'changes' | 'history'>('changes');
@@ -25,6 +26,13 @@ export function GitPanel() {
   useEffect(() => {
     checkGitRepository();
   }, [checkGitRepository]);
+
+  // Load commits when switching to history view or when repo becomes available
+  useEffect(() => {
+    if (isGitRepository && view === 'history') {
+      loadGitCommits();
+    }
+  }, [isGitRepository, view, loadGitCommits]);
 
   const handleInitRepository = async () => {
     if (confirm('Initialize a new Git repository in this workspace?')) {
