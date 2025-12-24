@@ -189,7 +189,7 @@ export function ChatPanel() {
 
   return (
     <div className="h-full flex flex-col bg-gradient-to-b from-[#1e1e1e] to-[#252526] text-gray-300">
-      <div className="px-4 py-3 flex items-center justify-between border-b border-gray-700 bg-[#2d2d30] shadow-lg">
+      <div className="flex items-center justify-between border-b border-gray-700 bg-[#2d2d30] shadow-lg" style={{paddingLeft: '16px', paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px'}}>
         <div className="flex items-center gap-3">
           <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
             <svg style={{width: '16px', height: '16px'}} className="text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -199,7 +199,7 @@ export function ChatPanel() {
           <div className="flex flex-col">
             <span className="text-sm font-semibold text-gray-200">AI Assistant</span>
             {isLoading && (
-              <span className="text-xs text-blue-400 flex items-center gap-1">
+              <span className="text-xs text-blue-400 flex items-center" style={{gap: '4px'}}>
                 <Spinner size="sm" className="text-blue-400" />
                 Processing...
               </span>
@@ -256,16 +256,17 @@ export function ChatPanel() {
               <div className="text-xs mt-1">Start chatting to create your first thread</div>
             </div>
           ) : (
-            <div className="py-2">
+            <div className="py-3">
               {conversations.map((conv) => (
                 <button
                   key={conv.id}
                   onClick={() => handleSwitchThread(conv.id)}
-                  className={`w-full text-left px-4 py-3 text-sm hover:bg-gray-700/70 transition-all group relative ${
+                  className={`w-full text-left text-sm hover:bg-gray-700/70 transition-all group relative ${
                     conv.id === conversationId 
                       ? 'bg-gradient-to-r from-blue-600/20 to-purple-600/20 border-l-2 border-blue-500' 
                       : 'hover:border-l-2 hover:border-gray-600'
                   }`}
+                  style={{paddingLeft: '16px', paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px'}}
                 >
                   <div className="flex items-start gap-2">
                     <div className={`mt-0.5 ${conv.id === conversationId ? 'text-blue-400' : 'text-gray-500 group-hover:text-gray-400'}`}>
@@ -278,7 +279,7 @@ export function ChatPanel() {
                         {conv.preview || `Conversation ${conv.id.slice(0, 8)}`}
                       </div>
                       <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                        <span className="flex items-center gap-1">
+                        <span className="flex items-center" style={{gap: '4px'}}>
                           <svg style={{width: '16px', height: '16px'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                           </svg>
@@ -296,7 +297,7 @@ export function ChatPanel() {
         </div>
       )}
       
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto" style={{padding: '16px 0'}}>
         {chatMessages.length === 0 && !isLoading ? (
           <div className="flex flex-col items-center justify-center h-full text-center text-gray-400 px-4">
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-600/20 flex items-center justify-center mb-4">
@@ -337,13 +338,21 @@ export function ChatPanel() {
                 className={`flex ${
                   message.role === 'user' ? 'justify-end' : 'justify-start'
                 }`}
+                style={{marginBottom: '16px'}}
               >
                 <div
-                  className={`max-w-[85%] rounded-xl px-4 py-3 ${
+                  className={`max-w-[85%] ${
                     message.role === 'user'
-                      ? 'bg-blue-700/80 text-white shadow-lg shadow-blue-900/50'
+                      ? 'bg-[#094771] text-white shadow-lg shadow-blue-900/50'
                       : 'bg-gray-800/60 text-gray-100 shadow-lg shadow-black/30'
                   }`}
+                  style={{
+                    paddingLeft: '14px', 
+                    paddingRight: '14px', 
+                    paddingTop: '10px', 
+                    paddingBottom: '10px',
+                    borderRadius: message.role === 'user' ? '16px' : '12px'
+                  }}
                 >
                   <div 
                     className="text-sm leading-relaxed break-words"
@@ -361,14 +370,15 @@ export function ChatPanel() {
               </div>
             ))}
             {isLoading && (
-              <div className="flex justify-start">
-                <div className="max-w-[85%] rounded-xl px-4 py-3 bg-gray-800/60 text-gray-100 shadow-lg shadow-black/30">
+              <div className="flex justify-start" style={{marginBottom: '16px'}}>
+                <div className="max-w-[85%] bg-gray-800/60 text-gray-100 shadow-lg shadow-black/30" style={{paddingLeft: '14px', paddingRight: '14px', paddingTop: '10px', paddingBottom: '10px', borderRadius: '12px'}}>
                   {streamingMessage ? (
                     <div 
                       className="text-sm leading-relaxed break-words"
                       style={{ 
                         whiteSpace: 'pre-wrap',
-                        wordBreak: 'break-word'
+                        wordBreak: 'break-word',
+                        padding: '4px 6px'
                       }}
                       dangerouslySetInnerHTML={{
                         __html: formatAIMessage(streamingMessage) + '<span class="inline-block w-1.5 h-3.5 ml-1 bg-blue-500 animate-pulse rounded"></span>'
@@ -393,7 +403,7 @@ export function ChatPanel() {
                     </div>
                   )}
                   {toolsUsed.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2 pt-2 border-t border-gray-600">
+                    <div className="flex flex-wrap mt-2 pt-2 border-t border-gray-600" style={{gap: '4px'}}>
                       {toolsUsed.map((tool, index) => (
                         <span key={index} className="text-xs bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full border border-blue-500/30">
                           {tool}
@@ -409,7 +419,7 @@ export function ChatPanel() {
         <div ref={messagesEndRef} />
       </div>
 
-      <form onSubmit={handleSubmit} className="border-t border-gray-700 p-4 bg-[#2d2d30] shadow-lg">
+      <form onSubmit={handleSubmit} className="border-t border-gray-700 bg-[#2d2d30] shadow-lg" style={{padding: '8px'}}>
         <div className="flex gap-3">
           <div className="flex-1 relative">
             <textarea
@@ -450,13 +460,13 @@ export function ChatPanel() {
           </button>
         </div>
         <div className="mt-2 text-xs text-gray-500 flex items-center gap-4">
-          <span className="flex items-center gap-1">
+          <span className="flex items-center" style={{gap: '4px'}}>
             <svg style={{width: '16px', height: '16px'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
-            Press Enter to send
+            Enter to send
           </span>
-          <span className="flex items-center gap-1">
+          <span className="flex items-center" style={{gap: '4px'}}>
             <svg style={{width: '16px', height: '16px'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
