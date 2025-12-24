@@ -109,9 +109,92 @@ export interface ChatResponse {
 
 export const chatApi = {
   /**
-   * Send a message to the AI agent
+   * Create a new conversation
    */
-  async sendMessage(message: string, history: ChatMessage[] = []): Promise<ChatResponse> {
+  async createConversation(): Promise<{ conversationId: string }> {
+    const response = await fetch(`${API_BASE_URL}/api/chat/conversations`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    return handleResponse<{ conversationId: string }>(response);
+  },
+
+  /**
+   * Send a message with streaming (SSE)
+   */
+  async streamMessage(
+    message: string,
+    conversationId: string | null,
+    onChunk: (chunk: string) => void,
+    onToolUse: (toolName: string) => void,
+    onDone: () => void,
+    onError: (error: string) => void
+  ): Promise<string> {
+    const response = await fetch(`${API_BASE_URL}/api/chat/stream`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message,
+        conversationId,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to send message');
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) {
+      throw new Error('No response body');
+    }
+
+    const decoder = new TextDecoder();
+    let newConversationId = conversationId;
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = JSON.parse(line.slice(6));
+
+            if (data.type === 'conversation_id') {
+              newConversationId = data.conversationId;
+            } else if (data.type === 'content') {
+              onChunk(data.content);
+            } else if (data.type === 'tool_use') {
+              onToolUse(data.toolName);
+            } else if (data.type === 'done') {
+              onDone();
+            } else if (data.type === 'error') {
+              onError(data.error);
+            }
+          }
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+
+    return newConversationId || '';
+  },
+
+  /**
+   * Send a message to the AI agent (non-streaming, legacy)
+   */
+  async sendMessage(message: string, conversationId: string | null = null): Promise<ChatResponse & { conversationId: string }> {
     const response = await fetch(`${API_BASE_URL}/api/chat/message`, {
       method: 'POST',
       headers: {
@@ -119,11 +202,11 @@ export const chatApi = {
       },
       body: JSON.stringify({
         message,
-        history,
+        conversationId,
       }),
     });
 
-    return handleResponse<ChatResponse>(response);
+    return handleResponse<ChatResponse & { conversationId: string }>(response);
   },
 };
 

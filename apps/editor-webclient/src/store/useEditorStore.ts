@@ -30,6 +30,7 @@ interface EditorState {
   sidebarVisible: boolean;
   chatVisible: boolean;
   chatMessages: ChatMessage[];
+  conversationId: string | null;
   isLoading: boolean;
   error: string | null;
   selectedFiles: Set<string>;
@@ -51,6 +52,8 @@ interface EditorState {
   toggleSidebar: () => void;
   toggleChat: () => void;
   addChatMessage: (role: 'user' | 'assistant', content: string) => void;
+  setConversationId: (id: string | null) => void;
+  clearChat: () => void;
   setFiles: (files: FileNode[]) => void;
   setError: (error: string | null) => void;
   
@@ -96,6 +99,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   sidebarVisible: true,
   chatVisible: true,
   chatMessages: [],
+  conversationId: null,
   isLoading: false,
   error: null,
   selectedFiles: new Set<string>(),
@@ -221,6 +225,10 @@ export const useEditorStore = create<EditorState>((set, get) => ({
         },
       ],
     })),
+  
+  setConversationId: (id) => set({ conversationId: id }),
+  
+  clearChat: () => set({ chatMessages: [], conversationId: null }),
   
   setFiles: (files) => set({ files }),
 

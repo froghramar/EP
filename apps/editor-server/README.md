@@ -107,6 +107,15 @@ CORS_CREDENTIALS=true
 ANTHROPIC_API_KEY=your_api_key_here
 ```
 
+### Data Storage
+
+The server uses SQLite for conversation storage:
+- Database file: `data/conversations.db`
+- Automatic schema initialization on first run
+- WAL mode for better concurrency
+- Automatic cleanup of conversations older than 24 hours
+- Graceful shutdown handling
+
 For production, set `CORS_ORIGIN` to specific allowed origins:
 ```env
 CORS_ORIGIN=http://localhost:5173,https://yourdomain.com
