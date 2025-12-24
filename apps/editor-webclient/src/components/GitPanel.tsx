@@ -105,14 +105,36 @@ export function GitPanel() {
     }
   };
 
-  const changedFiles = [
+  const handleStageAll = async () => {
+    if (changedFiles.length === 0) return;
+    try {
+      await stageFiles(changedFiles);
+    } catch (error) {
+      // Error handled by store
+    }
+  };
+
+  const handleUnstageAll = async () => {
+    if (stagedFiles.length === 0) return;
+    try {
+      await unstageFiles(stagedFiles);
+    } catch (error) {
+      // Error handled by store
+    }
+  };
+
+  const stagedFiles = gitStatus?.staged || [];
+  
+  // Changed files should exclude already staged files
+  const allChangedFiles = [
     ...(gitStatus?.modified || []),
     ...(gitStatus?.created || []),
     ...(gitStatus?.deleted || []),
     ...(gitStatus?.not_added || []),
   ];
-
-  const stagedFiles = gitStatus?.staged || [];
+  
+  const changedFiles = allChangedFiles.filter(file => !stagedFiles.includes(file));
+  
   const hasChanges = changedFiles.length > 0;
   const hasStagedChanges = stagedFiles.length > 0;
 
@@ -184,14 +206,21 @@ export function GitPanel() {
               <div className="mb-4">
                 <div className="px-3 py-2 bg-gray-700/30 text-xs font-semibold text-gray-400 flex items-center justify-between">
                   <span>Staged Changes ({stagedFiles.length})</span>
-                  {hasStagedChanges && (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleUnstageAll}
+                      className="px-2 py-1 text-xs text-gray-400 hover:text-gray-200 hover:bg-gray-600 rounded transition-colors"
+                      title="Unstage All"
+                    >
+                      − All
+                    </button>
                     <button
                       onClick={() => setCommitDialogOpen(true)}
                       className="px-2 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
                     >
                       Commit
                     </button>
-                  )}
+                  </div>
                 </div>
                 <div>
                   {stagedFiles.map((file) => (
@@ -219,8 +248,15 @@ export function GitPanel() {
             {/* Unstaged changes */}
             {hasChanges && (
               <div>
-                <div className="px-3 py-2 bg-gray-700/30 text-xs font-semibold text-gray-400">
-                  Changes ({changedFiles.length})
+                <div className="px-3 py-2 bg-gray-700/30 text-xs font-semibold text-gray-400 flex items-center justify-between">
+                  <span>Changes ({changedFiles.length})</span>
+                  <button
+                    onClick={handleStageAll}
+                    className="px-2 py-1 text-xs text-gray-400 hover:text-gray-200 hover:bg-gray-600 rounded transition-colors"
+                    title="Stage All"
+                  >
+                    + All
+                  </button>
                 </div>
                 <div>
                   {changedFiles.map((file) => {
