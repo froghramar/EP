@@ -197,6 +197,38 @@ class ConversationStore {
   }
 
   /**
+   * Get all conversations (summary without full messages)
+   */
+  getAll(): Array<{ id: string; createdAt: Date; updatedAt: Date; messageCount: number; preview: string }> {
+    const rows = this.db.prepare(`
+      SELECT 
+        c.id,
+        c.created_at,
+        c.updated_at,
+        COUNT(m.id) as message_count,
+        (SELECT content FROM messages WHERE conversation_id = c.id ORDER BY created_at ASC LIMIT 1) as preview
+      FROM conversations c
+      LEFT JOIN messages m ON m.conversation_id = c.id
+      GROUP BY c.id
+      ORDER BY c.updated_at DESC
+    `).all() as Array<{
+      id: string;
+      created_at: number;
+      updated_at: number;
+      message_count: number;
+      preview: string | null;
+    }>;
+
+    return rows.map(row => ({
+      id: row.id,
+      createdAt: new Date(row.created_at),
+      updatedAt: new Date(row.updated_at),
+      messageCount: row.message_count,
+      preview: row.preview || '',
+    }));
+  }
+
+  /**
    * Get all conversation IDs
    */
   list(): string[] {

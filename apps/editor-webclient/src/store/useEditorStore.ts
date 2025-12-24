@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { fileApi, gitApi, type GitStatus, type GitCommit } from '../services/api';
+import { fileApi, gitApi, chatApi, type GitStatus, type GitCommit } from '../services/api';
 import { debounce } from '../utils/debounce';
 import { dirname, basename } from '../utils/path';
 
@@ -42,7 +42,9 @@ interface EditorState {
   chatVisible: boolean;
   chatMessages: ChatMessage[];
   conversationId: string | null;
+  conversations: Array<{ id: string; createdAt: Date; updatedAt: Date; messageCount: number; preview: string }>;
   isLoading: boolean;
+  isLoadingConversations: boolean;
   error: string | null;
   selectedFiles: Set<string>;
   
@@ -69,6 +71,9 @@ interface EditorState {
   addChatMessage: (role: 'user' | 'assistant', content: string) => void;
   setConversationId: (id: string | null) => void;
   clearChat: () => void;
+  loadConversations: () => Promise<void>;
+  loadConversation: (id: string) => Promise<void>;
+  createNewConversation: () => Promise<void>;
   setFiles: (files: FileNode[]) => void;
   setError: (error: string | null) => void;
   
@@ -117,7 +122,9 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   chatVisible: true,
   chatMessages: [],
   conversationId: null,
+  conversations: [],
   isLoading: false,
+  isLoadingConversations: false,
   error: null,
   selectedFiles: new Set<string>(),
   
@@ -380,6 +387,130 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   setConversationId: (id) => set({ conversationId: id }),
   
   clearChat: () => set({ chatMessages: [], conversationId: null }),
+
+  loadConversations: async () => {
+    set({ isLoadingConversations: true, error: null });
+    try {
+      const { conversations } = await chatApi.getConversations();
+      set({ 
+        conversations: conversations.map(c => ({
+          ...c,
+          createdAt: new Date(c.createdAt),
+          updatedAt: new Date(c.updatedAt),
+        })),
+        isLoadingConversations: false 
+      });
+    } catch (error) {
+      set({ 
+        error: error instanceof Error ? error.message : 'Failed to load conversations',
+        isLoadingConversations: false 
+      });
+    }
+  },
+
+  loadConversation: async (id: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      const { conversation } = await chatApi.getConversation(id);
+      const chatMessages: ChatMessage[] = conversation.messages.map((msg, index) => ({
+        id: `${id}-${index}`,
+        role: msg.role,
+        content: msg.content,
+        timestamp: new Date(conversation.createdAt),
+      }));
+      set({ 
+        chatMessages,
+        conversationId: id,
+        isLoading: false 
+      });
+    } catch (error) {
+      set({ 
+        error: error instanceof Error ? error.message : 'Failed to load conversation',
+        isLoading: false 
+      });
+    }
+  },
+
+  createNewConversation: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const { conversationId } = await chatApi.createConversation();
+      set({ 
+        chatMessages: [],
+        conversationId,
+        isLoading: false 
+      });
+      // Reload conversations list
+      await get().loadConversations();
+    } catch (error) {
+      set({ 
+        error: error instanceof Error ? error.message : 'Failed to create conversation',
+        isLoading: false 
+      });
+    }
+  },
+
+  loadConversations: async () => {
+    set({ isLoadingConversations: true, error: null });
+    try {
+      const { conversations } = await chatApi.getConversations();
+      set({ 
+        conversations: conversations.map(c => ({
+          ...c,
+          createdAt: new Date(c.createdAt),
+          updatedAt: new Date(c.updatedAt),
+        })),
+        isLoadingConversations: false 
+      });
+    } catch (error) {
+      set({ 
+        error: error instanceof Error ? error.message : 'Failed to load conversations',
+        isLoadingConversations: false 
+      });
+    }
+  },
+
+  loadConversation: async (id: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      const { conversation } = await chatApi.getConversation(id);
+      const chatMessages: ChatMessage[] = conversation.messages.map((msg, index) => ({
+        id: `${id}-${index}`,
+        role: msg.role,
+        content: msg.content,
+        timestamp: new Date(conversation.createdAt),
+      }));
+      set({ 
+        chatMessages,
+        conversationId: id,
+        isLoading: false 
+      });
+    } catch (error) {
+      set({ 
+        error: error instanceof Error ? error.message : 'Failed to load conversation',
+        isLoading: false 
+      });
+    }
+  },
+
+  createNewConversation: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const { conversationId } = await chatApi.createConversation();
+      set({ 
+        chatMessages: [],
+        conversationId,
+        isLoading: false 
+      });
+      // Reload conversations list
+      await get().loadConversations();
+    } catch (error) {
+      set({ 
+        error: error instanceof Error ? error.message : 'Failed to create conversation',
+        isLoading: false 
+      });
+    }
+  },
   
   setFiles: (files) => set({ files }),
 

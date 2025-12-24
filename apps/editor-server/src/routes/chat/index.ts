@@ -20,6 +20,39 @@ router.get('/api/chat/stats', async (ctx) => {
   }
 });
 
+// Get all conversations
+router.get('/api/chat/conversations', async (ctx) => {
+  try {
+    const conversations = conversationStore.getAll();
+    ctx.body = { conversations };
+  } catch (error) {
+    console.error('Error getting conversations:', error);
+    ctx.status = 500;
+    ctx.body = {
+      error: error instanceof Error ? error.message : 'Failed to get conversations',
+    };
+  }
+});
+
+// Get a specific conversation with messages
+router.get('/api/chat/conversations/:id', async (ctx) => {
+  try {
+    const conversation = conversationStore.get(ctx.params.id);
+    if (!conversation) {
+      ctx.status = 404;
+      ctx.body = { error: 'Conversation not found' };
+      return;
+    }
+    ctx.body = { conversation };
+  } catch (error) {
+    console.error('Error getting conversation:', error);
+    ctx.status = 500;
+    ctx.body = {
+      error: error instanceof Error ? error.message : 'Failed to get conversation',
+    };
+  }
+});
+
 interface ChatRequest {
   message: string;
   conversationId?: string;

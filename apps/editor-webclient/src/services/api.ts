@@ -107,7 +107,38 @@ export interface ChatResponse {
   toolsUsed?: string[];
 }
 
+export interface ConversationSummary {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  messageCount: number;
+  preview: string;
+}
+
+export interface Conversation {
+  id: string;
+  messages: Array<{ role: 'user' | 'assistant'; content: string }>;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export const chatApi = {
+  /**
+   * Get all conversations
+   */
+  async getConversations(): Promise<{ conversations: ConversationSummary[] }> {
+    const response = await fetch(`${API_BASE_URL}/api/chat/conversations`);
+    return handleResponse<{ conversations: ConversationSummary[] }>(response);
+  },
+
+  /**
+   * Get a specific conversation
+   */
+  async getConversation(id: string): Promise<{ conversation: Conversation }> {
+    const response = await fetch(`${API_BASE_URL}/api/chat/conversations/${id}`);
+    return handleResponse<{ conversation: Conversation }>(response);
+  },
+
   /**
    * Create a new conversation
    */
