@@ -54,6 +54,9 @@ interface EditorState {
   gitCommits: GitCommit[];
   gitPanelVisible: boolean;
   
+  // Markdown preview
+  markdownPreviewMode: 'editor' | 'preview' | 'split';
+  
   // Actions
   loadFiles: () => Promise<void>;
   setActiveFile: (fileId: string | null, filePath?: string | null) => Promise<void>;
@@ -107,6 +110,9 @@ interface EditorState {
   pushChanges: (branch?: string) => Promise<void>;
   toggleGitPanel: () => void;
   refreshGit: () => Promise<void>;
+  
+  // Markdown preview
+  setMarkdownPreviewMode: (mode: 'editor' | 'preview' | 'split') => void;
 }
 
 export const useEditorStore = create<EditorState>((set, get) => ({
@@ -133,6 +139,9 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   gitStatus: null,
   gitCommits: [],
   gitPanelVisible: false,
+  
+  // Markdown preview
+  markdownPreviewMode: 'editor',
 
   loadFiles: async () => {
     set({ isLoading: true, error: null });
@@ -930,6 +939,11 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   refreshGit: async () => {
     await get().loadGitStatus();
     await get().loadGitCommits();
+  },
+  
+  // Markdown preview
+  setMarkdownPreviewMode: (mode) => {
+    set({ markdownPreviewMode: mode });
   },
 }));
 
