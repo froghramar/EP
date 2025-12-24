@@ -31,6 +31,7 @@ function getLanguageFromFileName(fileName: string): string {
     c: 'c',
     go: 'go',
     rs: 'rust',
+    yaml: 'yaml',
   };
   return languageMap[ext || ''] || 'plaintext';
 }
