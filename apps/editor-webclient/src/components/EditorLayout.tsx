@@ -14,9 +14,6 @@ export function EditorLayout() {
   const gitPanelVisible = useEditorStore((state) => state.gitPanelVisible);
   const setSidebarWidth = useEditorStore((state) => state.setSidebarWidth);
   const setChatWidth = useEditorStore((state) => state.setChatWidth);
-  const toggleSidebar = useEditorStore((state) => state.toggleSidebar);
-  const toggleChat = useEditorStore((state) => state.toggleChat);
-  const toggleGitPanel = useEditorStore((state) => state.toggleGitPanel);
   
   const [rightPanelView, setRightPanelView] = useState<'chat' | 'git'>('chat');
 

@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useEditorStore, type FileNode } from '../store/useEditorStore';
 import { FileContextMenu } from './FileContextMenu';
 import { FileOperationDialogs } from './FileOperationDialogs';
-import { join, dirname } from '../utils/path';
 
 interface FileTreeItemProps {
   file: FileNode;
@@ -235,20 +234,6 @@ export function FileTree() {
   const handleRootCreate = (type: 'file' | 'folder') => {
     setRootCreateType(type);
     setRootOperation('create');
-  };
-
-  const handleRootCreateSubmit = async (name: string) => {
-    const createFile = useEditorStore.getState().createFile;
-    const rootPath = files[0]?.path || '.';
-    const parentPath = files[0]?.type === 'folder' ? rootPath : dirname(rootPath);
-    const newPath = join(parentPath || '.', name);
-    
-    try {
-      await createFile(newPath, rootCreateType);
-      setRootOperation(null);
-    } catch (error) {
-      // Error is handled by store
-    }
   };
 
   return (

@@ -20,8 +20,6 @@ export function FileContextMenu({
   isOpen,
   x,
   y,
-  fileId,
-  filePath,
   fileType,
   onClose,
   onCreateFile,
