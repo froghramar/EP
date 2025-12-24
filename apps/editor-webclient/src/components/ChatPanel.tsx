@@ -15,10 +15,10 @@ function formatAIMessage(content: string): string {
   let formatted = escapeHtml(content);
   
   // Code blocks with ```
-  formatted = formatted.replace(/```([\s\S]*?)```/g, '<pre class="bg-gray-800 rounded p-2 my-2 overflow-x-auto text-xs"><code>$1</code></pre>');
+  formatted = formatted.replace(/```([\s\S]*?)```/g, '<pre class="bg-gray-900/80 rounded p-2 my-2 overflow-x-auto text-xs border border-gray-700/50"><code>$1</code></pre>');
   
   // Inline code with `
-  formatted = formatted.replace(/`([^`]+)`/g, '<code class="bg-gray-800 px-1.5 py-0.5 rounded text-xs font-mono text-blue-300">$1</code>');
+  formatted = formatted.replace(/`([^`]+)`/g, '<code class="bg-gray-900/60 px-1.5 py-0.5 rounded text-xs font-mono text-blue-400">$1</code>');
   
   // Bold with **
   formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong class="font-semibold">$1</strong>');
@@ -192,7 +192,7 @@ export function ChatPanel() {
       <div className="px-4 py-3 flex items-center justify-between border-b border-gray-700 bg-[#2d2d30] shadow-lg">
         <div className="flex items-center gap-3">
           <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg style={{width: '16px', height: '16px'}} className="text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
             </svg>
           </div>
@@ -249,7 +249,7 @@ export function ChatPanel() {
             </div>
           ) : conversations.length === 0 ? (
             <div className="p-6 text-center text-gray-500">
-              <svg className="w-12 h-12 mx-auto mb-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg style={{width: '40px', height: '40px'}} className="mx-auto mb-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
               </svg>
               <div className="text-sm">No conversations yet</div>
@@ -269,7 +269,7 @@ export function ChatPanel() {
                 >
                   <div className="flex items-start gap-2">
                     <div className={`mt-0.5 ${conv.id === conversationId ? 'text-blue-400' : 'text-gray-500 group-hover:text-gray-400'}`}>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg style={{width: '16px', height: '16px'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                       </svg>
                     </div>
@@ -279,7 +279,7 @@ export function ChatPanel() {
                       </div>
                       <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
                         <span className="flex items-center gap-1">
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg style={{width: '16px', height: '16px'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                           </svg>
                           {conv.messageCount}
@@ -300,7 +300,7 @@ export function ChatPanel() {
         {chatMessages.length === 0 && !isLoading ? (
           <div className="flex flex-col items-center justify-center h-full text-center text-gray-400 px-4">
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-600/20 flex items-center justify-center mb-4">
-              <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg style={{width: '28px', height: '28px'}} className="text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
             </div>
@@ -310,19 +310,19 @@ export function ChatPanel() {
             </p>
             <div className="mt-4 text-xs text-gray-500 space-y-2">
               <div className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg style={{width: '16px', height: '16px'}} className="text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
                 Code explanations and debugging
               </div>
               <div className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg style={{width: '16px', height: '16px'}} className="text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
                 File operations and refactoring
               </div>
               <div className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg style={{width: '16px', height: '16px'}} className="text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
                 Best practices and optimization
@@ -341,8 +341,8 @@ export function ChatPanel() {
                 <div
                   className={`max-w-[85%] rounded-xl px-4 py-3 ${
                     message.role === 'user'
-                      ? 'bg-blue-600 text-white shadow-md'
-                      : 'bg-[#2d2d30] text-gray-100'
+                      ? 'bg-blue-700/80 text-white shadow-lg shadow-blue-900/50'
+                      : 'bg-gray-800/60 text-gray-100 shadow-lg shadow-black/30'
                   }`}
                 >
                   <div 
@@ -362,7 +362,7 @@ export function ChatPanel() {
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="max-w-[85%] rounded-xl px-4 py-3 bg-[#2d2d30] text-gray-100">
+                <div className="max-w-[85%] rounded-xl px-4 py-3 bg-gray-800/60 text-gray-100 shadow-lg shadow-black/30">
                   {streamingMessage ? (
                     <div 
                       className="text-sm leading-relaxed break-words"
@@ -441,7 +441,7 @@ export function ChatPanel() {
               </>
             ) : (
               <>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg style={{width: '16px', height: '16px'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                 </svg>
                 <span>Send</span>
@@ -451,13 +451,13 @@ export function ChatPanel() {
         </div>
         <div className="mt-2 text-xs text-gray-500 flex items-center gap-4">
           <span className="flex items-center gap-1">
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg style={{width: '16px', height: '16px'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
             Press Enter to send
           </span>
           <span className="flex items-center gap-1">
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg style={{width: '16px', height: '16px'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
             Shift+Enter for new line
