@@ -94,7 +94,7 @@ router.post('/api/chat/stream', async (ctx) => {
       if (event.type === 'content' && event.content) {
         fullResponse += event.content;
         stream.write(`data: ${JSON.stringify(event)}\n\n`);
-      } else if (event.type === 'tool_use') {
+      } else if (event.type === 'tool_use' || event.type === 'tool_executing' || event.type === 'tool_result') {
         stream.write(`data: ${JSON.stringify(event)}\n\n`);
       } else if (event.type === 'done') {
         // Add assistant message to conversation

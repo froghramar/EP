@@ -12,6 +12,8 @@ export function ChatPanel() {
   const [isLoading, setIsLoading] = useState(false);
   const [streamingMessage, setStreamingMessage] = useState('');
   const [toolsUsed, setToolsUsed] = useState<string[]>([]);
+  const [executingTool, setExecutingTool] = useState<string | null>(null);
+  const [agentStatus, setAgentStatus] = useState<'thinking' | 'executing' | 'done'>('thinking');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -32,6 +34,8 @@ export function ChatPanel() {
     setIsLoading(true);
     setStreamingMessage('');
     setToolsUsed([]);
+    setExecutingTool(null);
+    setAgentStatus('thinking');
 
     try {
       let responseText = '';
@@ -43,10 +47,30 @@ export function ChatPanel() {
         (chunk) => {
           responseText += chunk;
           setStreamingMessage(responseText);
+          setAgentStatus('thinking');
         },
         (toolName) => {
           usedTools.push(toolName);
           setToolsUsed([...usedTools]);
+        },
+        (toolName) => {
+          setExecutingTool(toolName);
+          setAgentStatus('executing');
+        },
+        (toolName, result) => {
+          setExecutingTool(null);
+          setAgentStatus('thinking');
+          // Log tool result for debugging
+          try {
+            const resultObj = JSON.parse(result);
+            if (resultObj.error) {
+              console.error(`Tool ${toolName} error:`, resultObj.error);
+            } else {
+              console.log(`Tool ${toolName} completed successfully`);
+            }
+          } catch {
+            // Result is not JSON, that's okay
+          }
         },
         () => {
           // Done
@@ -57,6 +81,8 @@ export function ChatPanel() {
           addChatMessage('assistant', finalMessage);
           setStreamingMessage('');
           setToolsUsed([]);
+          setExecutingTool(null);
+          setAgentStatus('done');
           setIsLoading(false);
         },
         (error) => {
@@ -64,6 +90,8 @@ export function ChatPanel() {
           addChatMessage('assistant', `Error: ${error}`);
           setStreamingMessage('');
           setToolsUsed([]);
+          setExecutingTool(null);
+          setAgentStatus('done');
           setIsLoading(false);
         }
       );
@@ -149,17 +177,30 @@ export function ChatPanel() {
                     </div>
                   ) : (
                     <div className="flex items-center gap-2 text-sm">
-                      <span>AI is thinking</span>
-                      <div className="flex gap-1">
-                        <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                        <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                        <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
-                      </div>
+                      {executingTool ? (
+                        <>
+                          <span className="text-yellow-400">⚙️ Executing {executingTool}...</span>
+                          <div className="flex gap-1">
+                            <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                            <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                            <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <span>🤔 AI is thinking</span>
+                          <div className="flex gap-1">
+                            <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                            <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                            <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                          </div>
+                        </>
+                      )}
                     </div>
                   )}
                   {toolsUsed.length > 0 && (
                     <div className="text-xs text-gray-400 mt-1 italic">
-                      Using: {toolsUsed.join(', ')}
+                      Tools used: {toolsUsed.join(', ')}
                     </div>
                   )}
                 </div>

@@ -113,12 +113,20 @@ export async function executeTool(
       case 'write_file': {
         const filePath = join(WORKSPACE_ROOT, toolInput.path);
 
+        console.log(`[write_file] Attempting to write file: ${filePath}`);
+        console.log(`[write_file] Relative path: ${toolInput.path}`);
+        console.log(`[write_file] Content length: ${toolInput.content?.length || 0} characters`);
+
         if (!isSafePath(filePath)) {
-          return JSON.stringify({ error: 'Access denied: path outside workspace' });
+          const error = 'Access denied: path outside workspace';
+          console.error(`[write_file] ${error}`);
+          return JSON.stringify({ error });
         }
 
         if (isRestrictedPath(filePath)) {
-          return JSON.stringify({ error: 'Access denied: cannot write to restricted folders' });
+          const error = 'Access denied: cannot write to restricted folders';
+          console.error(`[write_file] ${error}`);
+          return JSON.stringify({ error });
         }
 
         // Check if file exists
@@ -126,30 +134,45 @@ export async function executeTool(
         try {
           await stat(filePath);
           fileExists = true;
+          console.log(`[write_file] File exists, will be modified`);
         } catch {
           // File doesn't exist, will be created
           fileExists = false;
+          console.log(`[write_file] File does not exist, will be created`);
         }
 
         // Ensure directory exists
+        const dirPath = dirname(filePath);
         try {
-          await mkdir(dirname(filePath), { recursive: true });
-        } catch {
-          // Directory might already exist, ignore
-        }
-
-        await writeFile(filePath, toolInput.content, 'utf-8');
-
-        // Notify file watcher if enabled
-        if (notifyFileWatcher) {
-          if (fileExists) {
-            fileWatcher.notifyFileModified(toolInput.path, toolInput.content);
-          } else {
-            fileWatcher.notifyFileCreated(toolInput.path, toolInput.content);
+          await mkdir(dirPath, { recursive: true });
+          console.log(`[write_file] Directory ensured: ${dirPath}`);
+        } catch (error) {
+          // Directory might already exist, but log if there's an actual error
+          if (error instanceof Error && error.message.includes('EEXIST') === false) {
+            console.error(`[write_file] Error creating directory:`, error);
           }
         }
 
-        return JSON.stringify({ success: true, path: toolInput.path });
+        try {
+          await writeFile(filePath, toolInput.content, 'utf-8');
+          console.log(`[write_file] Successfully wrote file: ${filePath}`);
+
+          // Notify file watcher if enabled
+          if (notifyFileWatcher) {
+            if (fileExists) {
+              fileWatcher.notifyFileModified(toolInput.path, toolInput.content);
+            } else {
+              fileWatcher.notifyFileCreated(toolInput.path, toolInput.content);
+            }
+            console.log(`[write_file] File watcher notified`);
+          }
+
+          return JSON.stringify({ success: true, path: toolInput.path });
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          console.error(`[write_file] Error writing file:`, errorMessage, error);
+          return JSON.stringify({ error: `Failed to write file: ${errorMessage}` });
+        }
       }
 
       case 'list_files': {

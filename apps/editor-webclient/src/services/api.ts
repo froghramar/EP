@@ -130,6 +130,8 @@ export const chatApi = {
     conversationId: string | null,
     onChunk: (chunk: string) => void,
     onToolUse: (toolName: string) => void,
+    onToolExecuting: (toolName: string) => void,
+    onToolResult: (toolName: string, result: string) => void,
     onDone: () => void,
     onError: (error: string) => void
   ): Promise<string> {
@@ -176,6 +178,10 @@ export const chatApi = {
               onChunk(data.content);
             } else if (data.type === 'tool_use') {
               onToolUse(data.toolName);
+            } else if (data.type === 'tool_executing') {
+              onToolExecuting(data.toolName);
+            } else if (data.type === 'tool_result') {
+              onToolResult(data.toolName, data.toolResult || '');
             } else if (data.type === 'done') {
               onDone();
             } else if (data.type === 'error') {
