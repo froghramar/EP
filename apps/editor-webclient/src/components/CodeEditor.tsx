@@ -1,18 +1,7 @@
 import { useRef, useMemo } from 'react';
 import Editor from '@monaco-editor/react';
-import { useEditorStore, type FileNode } from '../store/useEditorStore';
+import { useEditorStore } from '../store/useEditorStore';
 import type { editor } from 'monaco-editor';
-
-function findFileById(files: FileNode[], fileId: string): FileNode | null {
-  for (const file of files) {
-    if (file.id === fileId) return file;
-    if (file.children) {
-      const found = findFileById(file.children, fileId);
-      if (found) return found;
-    }
-  }
-  return null;
-}
 
 function getLanguageFromFileName(fileName: string): string {
   const ext = fileName.split('.').pop()?.toLowerCase();
@@ -38,10 +27,8 @@ function getLanguageFromFileName(fileName: string): string {
 
 export function CodeEditor() {
   const activeFileContent = useEditorStore((state) => state.activeFileContent);
-  const activeFileId = useEditorStore((state) => state.activeFileId);
   const activeTabId = useEditorStore((state) => state.activeTabId);
   const openTabs = useEditorStore((state) => state.openTabs);
-  const files = useEditorStore((state) => state.files);
   const isLoading = useEditorStore((state) => state.isLoading);
   const updateFileContent = useEditorStore((state) => state.updateFileContent);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);

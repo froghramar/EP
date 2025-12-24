@@ -10,7 +10,6 @@ export function ChatPanel() {
   const isLoadingConversations = useEditorStore((state) => state.isLoadingConversations);
   const addChatMessage = useEditorStore((state) => state.addChatMessage);
   const setConversationId = useEditorStore((state) => state.setConversationId);
-  const clearChat = useEditorStore((state) => state.clearChat);
   const loadConversations = useEditorStore((state) => state.loadConversations);
   const loadConversation = useEditorStore((state) => state.loadConversation);
   const createNewConversation = useEditorStore((state) => state.createNewConversation);
@@ -19,7 +18,6 @@ export function ChatPanel() {
   const [streamingMessage, setStreamingMessage] = useState('');
   const [toolsUsed, setToolsUsed] = useState<string[]>([]);
   const [executingTool, setExecutingTool] = useState<string | null>(null);
-  const [agentStatus, setAgentStatus] = useState<'thinking' | 'executing' | 'done'>('thinking');
   const [showThreads, setShowThreads] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -63,7 +61,6 @@ export function ChatPanel() {
     setStreamingMessage('');
     setToolsUsed([]);
     setExecutingTool(null);
-    setAgentStatus('thinking');
 
     try {
       let responseText = '';
@@ -75,7 +72,6 @@ export function ChatPanel() {
         (chunk) => {
           responseText += chunk;
           setStreamingMessage(responseText);
-          setAgentStatus('thinking');
         },
         (toolName) => {
           usedTools.push(toolName);
@@ -83,11 +79,9 @@ export function ChatPanel() {
         },
         (toolName) => {
           setExecutingTool(toolName);
-          setAgentStatus('executing');
         },
         (toolName, result) => {
           setExecutingTool(null);
-          setAgentStatus('thinking');
           // Log tool result for debugging
           try {
             const resultObj = JSON.parse(result);
@@ -110,7 +104,6 @@ export function ChatPanel() {
           setStreamingMessage('');
           setToolsUsed([]);
           setExecutingTool(null);
-          setAgentStatus('done');
           setIsLoading(false);
         },
         (error) => {
@@ -119,7 +112,6 @@ export function ChatPanel() {
           setStreamingMessage('');
           setToolsUsed([]);
           setExecutingTool(null);
-          setAgentStatus('done');
           setIsLoading(false);
         }
       );

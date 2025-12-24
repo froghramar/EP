@@ -1,4 +1,4 @@
-import { readFile, writeFile, readdir, stat, mkdir } from 'fs/promises';
+import { readFile, writeFile, readdir, stat, mkdir, unlink, rm } from 'fs/promises';
 import { join, dirname } from 'path';
 import { WORKSPACE_ROOT } from '../config';
 import { isSafePath, toRelativePath } from '../utils/pathUtils';
@@ -72,6 +72,20 @@ export const tools: Anthropic.Tool[] = [
         },
       },
       required: ['query'],
+    },
+  },
+  {
+    name: 'delete_file',
+    description: 'Delete a file or directory from the workspace. Use this to remove files that are no longer needed. Be careful - this action cannot be undone.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        path: {
+          type: 'string',
+          description: 'The relative path to the file or directory from the workspace root',
+        },
+      },
+      required: ['path'],
     },
   },
 ];
@@ -240,6 +254,51 @@ export async function executeTool(
         return JSON.stringify({ results: results.slice(0, 50), query: toolInput.query });
       }
 
+      case 'delete_file': {
+        const filePath = join(WORKSPACE_ROOT, toolInput.path);
+
+        console.log(`[delete_file] Attempting to delete: ${filePath}`);
+        console.log(`[delete_file] Relative path: ${toolInput.path}`);
+
+        if (!isSafePath(filePath)) {
+          const error = 'Access denied: path outside workspace';
+          console.error(`[delete_file] ${error}`);
+          return JSON.stringify({ error });
+        }
+
+        if (isRestrictedPath(filePath)) {
+          const error = 'Access denied: cannot delete restricted folders';
+          console.error(`[delete_file] ${error}`);
+          return JSON.stringify({ error });
+        }
+
+        try {
+          const stats = await stat(filePath);
+          
+          if (stats.isDirectory()) {
+            // Remove directory recursively
+            await rm(filePath, { recursive: true, force: true });
+            console.log(`[delete_file] Successfully deleted directory: ${filePath}`);
+          } else {
+            // Remove file
+            await unlink(filePath);
+            console.log(`[delete_file] Successfully deleted file: ${filePath}`);
+          }
+
+          // Notify file watcher if enabled
+          if (notifyFileWatcher) {
+            fileWatcher.notifyFileDeleted(toolInput.path);
+            console.log(`[delete_file] File watcher notified`);
+          }
+
+          return JSON.stringify({ success: true, path: toolInput.path });
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          console.error(`[delete_file] Error deleting file:`, errorMessage, error);
+          return JSON.stringify({ error: `Failed to delete file: ${errorMessage}` });
+        }
+      }
+
       default:
         return JSON.stringify({ error: `Unknown tool: ${toolName}` });
     }
@@ -259,6 +318,7 @@ export function getSystemPrompt(): string {
 Your capabilities:
 - Read and analyze code files
 - Write or modify files
+- Delete files or directories
 - List directory contents
 - Search for code patterns or text
 

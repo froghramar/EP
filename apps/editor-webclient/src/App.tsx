@@ -3,14 +3,12 @@ import { EditorLayout } from './components/EditorLayout';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { websocketService } from './services/websocket';
 import { useEditorStore } from './store/useEditorStore';
-import { fileApi } from './services/api';
 import { pathsMatch } from './utils/path';
 
 function App() {
   useKeyboardShortcuts();
   const refreshFileContent = useEditorStore((state) => state.refreshFileContent);
   const loadFiles = useEditorStore((state) => state.loadFiles);
-  const openTabs = useEditorStore((state) => state.openTabs);
   const openFileInTab = useEditorStore((state) => state.openFileInTab);
 
   useEffect(() => {

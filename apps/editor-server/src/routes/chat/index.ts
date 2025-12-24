@@ -37,7 +37,14 @@ router.get('/api/chat/conversations', async (ctx) => {
 // Get a specific conversation with messages
 router.get('/api/chat/conversations/:id', async (ctx) => {
   try {
-    const conversation = conversationStore.get(ctx.params.id);
+    const conversationId = ctx.params.id;
+    if (!conversationId) {
+      ctx.status = 400;
+      ctx.body = { error: 'Conversation ID is required' };
+      return;
+    }
+    
+    const conversation = conversationStore.get(conversationId);
     if (!conversation) {
       ctx.status = 404;
       ctx.body = { error: 'Conversation not found' };
@@ -101,6 +108,14 @@ router.post('/api/chat/stream', async (ctx) => {
       content: message,
     });
 
+    // Reload conversation to get updated messages including the new user message
+    conversation = conversationStore.get(conversation.id);
+    if (!conversation) {
+      ctx.status = 500;
+      ctx.body = { error: 'Failed to reload conversation' };
+      return;
+    }
+
     // Set up SSE
     ctx.request.socket.setTimeout(0);
     ctx.req.socket.setNoDelay(true);
@@ -122,8 +137,12 @@ router.post('/api/chat/stream', async (ctx) => {
 
     let fullResponse = '';
 
+    // Pass all messages EXCEPT the last one (which is the current user message)
+    // This ensures the agent has full context including previous assistant responses
+    const conversationHistory = conversation.messages.slice(0, -1);
+
     // Stream the response
-    for await (const event of processAgentMessageStream(message, conversation.messages.slice(0, -1))) {
+    for await (const event of processAgentMessageStream(message, conversationHistory)) {
       if (event.type === 'content' && event.content) {
         fullResponse += event.content;
         stream.write(`data: ${JSON.stringify(event)}\n\n`);
