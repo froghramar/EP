@@ -246,7 +246,13 @@ export function ChatPanel() {
                       : 'bg-gray-700 text-gray-200'
                   }`}
                 >
-                  <div className="text-sm whitespace-pre-wrap break-words">
+                  <div 
+                    className="text-sm break-words"
+                    style={{ 
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-word'
+                    }}
+                  >
                     {message.content}
                   </div>
                 </div>
@@ -256,7 +262,13 @@ export function ChatPanel() {
               <div className="flex justify-start">
                 <div className="max-w-[80%] rounded-lg px-3 py-2 bg-gray-700 text-gray-200">
                   {streamingMessage ? (
-                    <div className="text-sm whitespace-pre-wrap break-words">
+                    <div 
+                      className="text-sm break-words"
+                      style={{ 
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-word'
+                      }}
+                    >
                       {streamingMessage}
                       <span className="inline-block w-2 h-4 ml-1 bg-blue-500 animate-pulse"></span>
                     </div>
