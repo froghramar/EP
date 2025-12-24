@@ -70,6 +70,208 @@ export interface BulkOperationResponse {
   success: boolean;
 }
 
+export interface GitStatus {
+  branch: string;
+  modified: string[];
+  created: string[];
+  deleted: string[];
+  renamed: Array<{ from: string; to: string }>;
+  staged: string[];
+  conflicted: string[];
+  not_added: string[];
+  isClean: boolean;
+  ahead: number;
+  behind: number;
+}
+
+export interface GitCommit {
+  hash: string;
+  date: string;
+  message: string;
+  author_name: string;
+  author_email: string;
+}
+
+export interface GitBranches {
+  current: string;
+  all: string[];
+}
+
+export const gitApi = {
+  /**
+   * Check if workspace is a git repository
+   */
+  async checkGitRepository(): Promise<boolean> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/git/check`);
+      const data = await handleResponse<{ isGitRepository: boolean }>(response);
+      return data.isGitRepository;
+    } catch (error) {
+      return false;
+    }
+  },
+
+  /**
+   * Get git status
+   */
+  async getStatus(): Promise<GitStatus> {
+    const response = await fetch(`${API_BASE_URL}/api/git/status`);
+    return handleResponse<GitStatus>(response);
+  },
+
+  /**
+   * Get file diff
+   */
+  async getDiff(filePath: string, cached: boolean = false): Promise<string> {
+    const url = new URL(`${API_BASE_URL}/api/git/diff`);
+    url.searchParams.set('path', filePath);
+    if (cached) {
+      url.searchParams.set('cached', 'true');
+    }
+
+    const response = await fetch(url.toString());
+    const data = await handleResponse<{ diff: string }>(response);
+    return data.diff;
+  },
+
+  /**
+   * Stage files
+   */
+  async stageFiles(files: string[]): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/api/git/stage`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ files }),
+    });
+
+    await handleResponse<{ success: boolean }>(response);
+  },
+
+  /**
+   * Unstage files
+   */
+  async unstageFiles(files: string[]): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/api/git/unstage`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ files }),
+    });
+
+    await handleResponse<{ success: boolean }>(response);
+  },
+
+  /**
+   * Commit changes
+   */
+  async commit(message: string): Promise<string> {
+    const response = await fetch(`${API_BASE_URL}/api/git/commit`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ message }),
+    });
+
+    const data = await handleResponse<{ success: boolean; commit: string }>(response);
+    return data.commit;
+  },
+
+  /**
+   * Get commit log
+   */
+  async getLog(maxCount: number = 50): Promise<GitCommit[]> {
+    const url = new URL(`${API_BASE_URL}/api/git/log`);
+    url.searchParams.set('maxCount', maxCount.toString());
+
+    const response = await fetch(url.toString());
+    const data = await handleResponse<{ commits: GitCommit[] }>(response);
+    return data.commits;
+  },
+
+  /**
+   * Discard changes
+   */
+  async discardChanges(files: string[]): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/api/git/discard`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ files }),
+    });
+
+    await handleResponse<{ success: boolean }>(response);
+  },
+
+  /**
+   * Get branches
+   */
+  async getBranches(): Promise<GitBranches> {
+    const response = await fetch(`${API_BASE_URL}/api/git/branches`);
+    return handleResponse<GitBranches>(response);
+  },
+
+  /**
+   * Checkout branch
+   */
+  async checkoutBranch(branch: string): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/api/git/checkout`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ branch }),
+    });
+
+    await handleResponse<{ success: boolean }>(response);
+  },
+
+  /**
+   * Create branch
+   */
+  async createBranch(name: string, checkout: boolean = false): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/api/git/branch`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name, checkout }),
+    });
+
+    await handleResponse<{ success: boolean }>(response);
+  },
+
+  /**
+   * Pull changes
+   */
+  async pull(): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/api/git/pull`, {
+      method: 'POST',
+    });
+
+    await handleResponse<{ success: boolean }>(response);
+  },
+
+  /**
+   * Push changes
+   */
+  async push(branch?: string): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/api/git/push`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ branch }),
+    });
+
+    await handleResponse<{ success: boolean }>(response);
+  },
+};
+
 export const fileApi = {
   /**
    * Get list of files in a directory

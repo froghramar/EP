@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { fileApi } from '../services/api';
+import { fileApi, gitApi, type GitStatus, type GitCommit } from '../services/api';
 import { debounce } from '../utils/debounce';
 import { dirname, basename } from '../utils/path';
 
@@ -34,6 +34,12 @@ interface EditorState {
   error: string | null;
   selectedFiles: Set<string>;
   
+  // Git state
+  isGitRepository: boolean;
+  gitStatus: GitStatus | null;
+  gitCommits: GitCommit[];
+  gitPanelVisible: boolean;
+  
   // Actions
   loadFiles: () => Promise<void>;
   setActiveFile: (fileId: string | null, filePath?: string | null) => Promise<void>;
@@ -62,6 +68,21 @@ interface EditorState {
   toggleFileSelection: (fileId: string) => void;
   clearSelection: () => void;
   selectFile: (fileId: string) => void;
+  
+  // Git operations
+  checkGitRepository: () => Promise<void>;
+  loadGitStatus: () => Promise<void>;
+  stageFiles: (files: string[]) => Promise<void>;
+  unstageFiles: (files: string[]) => Promise<void>;
+  commitChanges: (message: string) => Promise<void>;
+  discardChanges: (files: string[]) => Promise<void>;
+  loadGitCommits: (maxCount?: number) => Promise<void>;
+  checkoutBranch: (branch: string) => Promise<void>;
+  createBranch: (name: string, checkout?: boolean) => Promise<void>;
+  pullChanges: () => Promise<void>;
+  pushChanges: (branch?: string) => Promise<void>;
+  toggleGitPanel: () => void;
+  refreshGit: () => Promise<void>;
 }
 
 export const useEditorStore = create<EditorState>((set, get) => ({
@@ -77,6 +98,12 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   isLoading: false,
   error: null,
   selectedFiles: new Set<string>(),
+  
+  // Git state
+  isGitRepository: false,
+  gitStatus: null,
+  gitCommits: [],
+  gitPanelVisible: true,
 
   loadFiles: async () => {
     set({ isLoading: true, error: null });
@@ -87,6 +114,12 @@ export const useEditorStore = create<EditorState>((set, get) => ({
         set({ files: [tree], isLoading: false });
       } else {
         set({ files: [], isLoading: false });
+      }
+      
+      // Also check git status if repo exists
+      const state = get();
+      if (state.isGitRepository) {
+        await get().loadGitStatus();
       }
     } catch (error) {
       set({ 
@@ -484,6 +517,176 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   selectFile: (fileId) => set({
     selectedFiles: new Set([fileId]),
   }),
+
+  // Git operations
+  checkGitRepository: async () => {
+    try {
+      const isRepo = await gitApi.checkGitRepository();
+      set({ isGitRepository: isRepo });
+      if (isRepo) {
+        await get().loadGitStatus();
+      }
+    } catch (error) {
+      set({ isGitRepository: false });
+    }
+  },
+
+  loadGitStatus: async () => {
+    try {
+      const status = await gitApi.getStatus();
+      set({ gitStatus: status });
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Failed to load git status',
+      });
+    }
+  },
+
+  stageFiles: async (files) => {
+    set({ isLoading: true, error: null });
+    try {
+      await gitApi.stageFiles(files);
+      await get().loadGitStatus();
+      set({ isLoading: false });
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Failed to stage files',
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  unstageFiles: async (files) => {
+    set({ isLoading: true, error: null });
+    try {
+      await gitApi.unstageFiles(files);
+      await get().loadGitStatus();
+      set({ isLoading: false });
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Failed to unstage files',
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  commitChanges: async (message) => {
+    set({ isLoading: true, error: null });
+    try {
+      await gitApi.commit(message);
+      await get().loadGitStatus();
+      await get().loadGitCommits();
+      set({ isLoading: false });
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Failed to commit changes',
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  discardChanges: async (files) => {
+    set({ isLoading: true, error: null });
+    try {
+      await gitApi.discardChanges(files);
+      await get().loadGitStatus();
+      set({ isLoading: false });
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Failed to discard changes',
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  loadGitCommits: async (maxCount = 50) => {
+    try {
+      const commits = await gitApi.getLog(maxCount);
+      set({ gitCommits: commits });
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Failed to load commits',
+      });
+    }
+  },
+
+  checkoutBranch: async (branch) => {
+    set({ isLoading: true, error: null });
+    try {
+      await gitApi.checkoutBranch(branch);
+      await get().loadGitStatus();
+      await get().loadFiles(); // Reload files after branch change
+      set({ isLoading: false });
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Failed to checkout branch',
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  createBranch: async (name, checkout = false) => {
+    set({ isLoading: true, error: null });
+    try {
+      await gitApi.createBranch(name, checkout);
+      await get().loadGitStatus();
+      if (checkout) {
+        await get().loadFiles();
+      }
+      set({ isLoading: false });
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Failed to create branch',
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  pullChanges: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      await gitApi.pull();
+      await get().loadGitStatus();
+      await get().loadFiles();
+      set({ isLoading: false });
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Failed to pull changes',
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  pushChanges: async (branch) => {
+    set({ isLoading: true, error: null });
+    try {
+      await gitApi.push(branch);
+      await get().loadGitStatus();
+      set({ isLoading: false });
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : 'Failed to push changes',
+        isLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  toggleGitPanel: () => {
+    set((state) => ({ gitPanelVisible: !state.gitPanelVisible }));
+  },
+
+  refreshGit: async () => {
+    await get().loadGitStatus();
+    await get().loadGitCommits();
+  },
 }));
 
 // Debounced save function (1 second delay after user stops typing)

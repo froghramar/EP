@@ -17,6 +17,7 @@ function FileTreeItem({ file, level }: FileTreeItemProps) {
   const toggleFileSelection = useEditorStore((state) => state.toggleFileSelection);
   const selectFile = useEditorStore((state) => state.selectFile);
   const clearSelection = useEditorStore((state) => state.clearSelection);
+  const gitStatus = useEditorStore((state) => state.gitStatus);
   
   const [contextMenu, setContextMenu] = useState<{
     x: number;
@@ -60,6 +61,33 @@ function FileTreeItem({ file, level }: FileTreeItemProps) {
   const isActive = file.id === activeFileId;
   const isSelected = selectedFiles.has(file.id);
   const indent = level * 16;
+
+  // Get git status for this file
+  const getGitStatus = () => {
+    if (!gitStatus) return null;
+    
+    const relativePath = file.path;
+    
+    if (gitStatus.staged.includes(relativePath)) {
+      return { status: 'staged', color: 'text-green-400', icon: '●' };
+    }
+    if (gitStatus.modified.includes(relativePath)) {
+      return { status: 'modified', color: 'text-yellow-400', icon: 'M' };
+    }
+    if (gitStatus.created.includes(relativePath) || gitStatus.not_added.includes(relativePath)) {
+      return { status: 'new', color: 'text-green-400', icon: 'U' };
+    }
+    if (gitStatus.deleted.includes(relativePath)) {
+      return { status: 'deleted', color: 'text-red-400', icon: 'D' };
+    }
+    if (gitStatus.conflicted.includes(relativePath)) {
+      return { status: 'conflict', color: 'text-red-500', icon: 'C' };
+    }
+    
+    return null;
+  };
+
+  const gitFileStatus = getGitStatus();
 
   const handleCreateFile = (type: 'file' | 'folder') => {
     setCreateType(type);
@@ -143,7 +171,12 @@ function FileTreeItem({ file, level }: FileTreeItemProps) {
           ) : (
             <span className="mr-1 text-xs">📄</span>
           )}
-          <span className="text-sm truncate">{file.name}</span>
+          <span className="text-sm truncate flex-1">{file.name}</span>
+          {gitFileStatus && (
+            <span className={`ml-2 text-xs ${gitFileStatus.color} font-semibold`} title={gitFileStatus.status}>
+              {gitFileStatus.icon}
+            </span>
+          )}
         </div>
         {file.type === 'folder' && file.expanded && file.children && (
           <div>

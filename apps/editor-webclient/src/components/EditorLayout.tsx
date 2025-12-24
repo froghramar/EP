@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { FileTree } from './FileTree';
 import { CodeEditor } from './CodeEditor';
 import { ChatPanel } from './ChatPanel';
+import { GitPanel } from './GitPanel';
 import { ResizablePanel } from './ResizablePanel';
 import { useEditorStore } from '../store/useEditorStore';
 
@@ -9,10 +11,14 @@ export function EditorLayout() {
   const chatWidth = useEditorStore((state) => state.chatWidth);
   const sidebarVisible = useEditorStore((state) => state.sidebarVisible);
   const chatVisible = useEditorStore((state) => state.chatVisible);
+  const gitPanelVisible = useEditorStore((state) => state.gitPanelVisible);
   const setSidebarWidth = useEditorStore((state) => state.setSidebarWidth);
   const setChatWidth = useEditorStore((state) => state.setChatWidth);
   const toggleSidebar = useEditorStore((state) => state.toggleSidebar);
   const toggleChat = useEditorStore((state) => state.toggleChat);
+  const toggleGitPanel = useEditorStore((state) => state.toggleGitPanel);
+  
+  const [rightPanelView, setRightPanelView] = useState<'chat' | 'git'>('git');
 
   return (
     <div className="h-full w-full flex bg-[#1e1e1e]">
@@ -39,8 +45,8 @@ export function EditorLayout() {
         </div>
       </div>
 
-      {/* Chat Panel */}
-      {chatVisible && (
+      {/* Right Panel (Chat/Git) */}
+      {(chatVisible || gitPanelVisible) && (
         <ResizablePanel
           width={chatWidth}
           onResize={setChatWidth}
@@ -48,7 +54,35 @@ export function EditorLayout() {
           minWidth={200}
           maxWidth={600}
         >
-          <ChatPanel />
+          <div className="h-full flex flex-col">
+            {/* Tab selector */}
+            <div className="flex border-b border-gray-700 bg-[#252526]">
+              <button
+                onClick={() => setRightPanelView('git')}
+                className={`flex-1 px-3 py-2 text-sm transition-colors ${
+                  rightPanelView === 'git'
+                    ? 'bg-gray-700 text-gray-200'
+                    : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700/50'
+                }`}
+              >
+                🌿 Git
+              </button>
+              <button
+                onClick={() => setRightPanelView('chat')}
+                className={`flex-1 px-3 py-2 text-sm transition-colors ${
+                  rightPanelView === 'chat'
+                    ? 'bg-gray-700 text-gray-200'
+                    : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700/50'
+                }`}
+              >
+                💬 Chat
+              </button>
+            </div>
+            {/* Panel content */}
+            <div className="flex-1 overflow-hidden">
+              {rightPanelView === 'git' ? <GitPanel /> : <ChatPanel />}
+            </div>
+          </div>
         </ResizablePanel>
       )}
     </div>
