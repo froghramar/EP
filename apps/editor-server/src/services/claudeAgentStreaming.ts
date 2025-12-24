@@ -1,10 +1,11 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { readFile, writeFile, readdir, stat } from 'fs/promises';
-import { join } from 'path';
+import { readFile, writeFile, readdir, stat, unlink, mkdir } from 'fs/promises';
+import { join, dirname } from 'path';
 import { WORKSPACE_ROOT, CLAUDE_MODEL } from '../config';
-import { isSafePath } from '../utils/pathUtils';
+import { isSafePath, toRelativePath } from '../utils/pathUtils';
 import { isRestrictedPath } from '../utils/restrictedFolders';
 import { Message } from './claudeAgent';
+import { fileWatcher } from './fileWatcher';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -112,7 +113,32 @@ async function executeTool(toolName: string, toolInput: any): Promise<string> {
           return JSON.stringify({ error: 'Access denied: cannot write to restricted folders' });
         }
         
+        // Check if file exists
+        let fileExists = false;
+        try {
+          await stat(filePath);
+          fileExists = true;
+        } catch {
+          // File doesn't exist, will be created
+          fileExists = false;
+        }
+        
+        // Ensure directory exists
+        try {
+          await mkdir(dirname(filePath), { recursive: true });
+        } catch {
+          // Directory might already exist, ignore
+        }
+        
         await writeFile(filePath, toolInput.content, 'utf-8');
+        
+        // Notify file watcher
+        if (fileExists) {
+          fileWatcher.notifyFileModified(toolInput.path, toolInput.content);
+        } else {
+          fileWatcher.notifyFileCreated(toolInput.path, toolInput.content);
+        }
+        
         return JSON.stringify({ success: true, path: toolInput.path });
       }
 

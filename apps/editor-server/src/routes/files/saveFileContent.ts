@@ -2,8 +2,9 @@ import Router from '@koa/router';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
-import { isSafePath } from '../../utils/pathUtils';
+import { isSafePath, toRelativePath } from '../../utils/pathUtils';
 import { isRestrictedPath } from '../../utils/restrictedFolders';
+import { fileWatcher } from '../../services/fileWatcher';
 
 const router = new Router();
 
@@ -37,6 +38,11 @@ router.post('/api/files/content', async (ctx) => {
     }
 
     await writeFile(filePath, content, 'utf-8');
+    
+    // Notify file watcher
+    const relativePath = toRelativePath(filePath);
+    fileWatcher.notifyFileModified(relativePath, content);
+    
     ctx.body = { success: true };
   } catch (error) {
     ctx.status = 500;

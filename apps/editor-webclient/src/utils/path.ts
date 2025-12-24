@@ -31,3 +31,24 @@ export function join(...paths: string[]): string {
   return result.replace(/\\/g, '/');
 }
 
+/**
+ * Normalize a path for comparison (handles both relative and absolute paths)
+ */
+export function normalizePathForComparison(path: string): string {
+  return path.replace(/\\/g, '/').replace(/^\/+/, '').toLowerCase();
+}
+
+/**
+ * Check if two paths match (handles both relative and absolute paths)
+ */
+export function pathsMatch(path1: string, path2: string): boolean {
+  const normalized1 = normalizePathForComparison(path1);
+  const normalized2 = normalizePathForComparison(path2);
+  
+  // Exact match
+  if (normalized1 === normalized2) return true;
+  
+  // Check if one ends with the other (for absolute vs relative comparison)
+  return normalized1.endsWith('/' + normalized2) || normalized2.endsWith('/' + normalized1);
+}
+

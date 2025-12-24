@@ -1,7 +1,8 @@
 import Router from '@koa/router';
 import { unlink, rm, stat } from 'fs/promises';
-import { isSafePath } from '../../utils/pathUtils';
+import { isSafePath, toRelativePath } from '../../utils/pathUtils';
 import { isRestrictedPath } from '../../utils/restrictedFolders';
+import { fileWatcher } from '../../services/fileWatcher';
 
 const router = new Router();
 
@@ -37,6 +38,10 @@ router.delete('/api/files', async (ctx) => {
       // Remove file
       await unlink(filePath);
     }
+
+    // Notify file watcher
+    const relativePath = toRelativePath(filePath);
+    fileWatcher.notifyFileDeleted(relativePath);
 
     ctx.body = { success: true };
   } catch (error) {

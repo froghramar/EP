@@ -1,8 +1,9 @@
 import Router from '@koa/router';
 import { rename } from 'fs/promises';
 import { dirname, join } from 'path';
-import { isSafePath } from '../../utils/pathUtils';
+import { isSafePath, toRelativePath } from '../../utils/pathUtils';
 import { isRestrictedPath } from '../../utils/restrictedFolders';
+import { fileWatcher } from '../../services/fileWatcher';
 
 const router = new Router();
 
@@ -48,6 +49,12 @@ router.patch('/api/files/rename', async (ctx) => {
     }
 
     await rename(filePath, newPath);
+    
+    // Notify file watcher
+    const oldRelativePath = toRelativePath(filePath);
+    const newRelativePath = toRelativePath(newPath);
+    fileWatcher.notifyFileRenamed(oldRelativePath, newRelativePath);
+    
     ctx.body = { success: true, newPath };
   } catch (error) {
     ctx.status = 500;

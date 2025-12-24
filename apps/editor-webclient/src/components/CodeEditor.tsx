@@ -39,17 +39,19 @@ function getLanguageFromFileName(fileName: string): string {
 export function CodeEditor() {
   const activeFileContent = useEditorStore((state) => state.activeFileContent);
   const activeFileId = useEditorStore((state) => state.activeFileId);
+  const activeTabId = useEditorStore((state) => state.activeTabId);
+  const openTabs = useEditorStore((state) => state.openTabs);
   const files = useEditorStore((state) => state.files);
   const isLoading = useEditorStore((state) => state.isLoading);
   const updateFileContent = useEditorStore((state) => state.updateFileContent);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
 
+  const activeTab = activeTabId ? openTabs.find(t => t.id === activeTabId) : null;
+
   const language = useMemo(() => {
-    if (!activeFileId) return 'plaintext';
-    const file = findFileById(files, activeFileId);
-    if (!file) return 'plaintext';
-    return getLanguageFromFileName(file.name);
-  }, [activeFileId, files]);
+    if (!activeTab) return 'plaintext';
+    return getLanguageFromFileName(activeTab.fileName);
+  }, [activeTab]);
 
   const handleEditorDidMount = (editor: editor.IStandaloneCodeEditor) => {
     editorRef.current = editor;
@@ -57,12 +59,12 @@ export function CodeEditor() {
   };
 
   const handleEditorChange = (value: string | undefined) => {
-    if (value !== undefined) {
-      updateFileContent(value);
+    if (value !== undefined && activeTabId) {
+      updateFileContent(value, activeTabId);
     }
   };
 
-  if (!activeFileId) {
+  if (!activeTabId || !activeTab) {
     return (
       <div className="h-full w-full bg-[#1e1e1e] flex items-center justify-center text-gray-500">
         <div className="text-center">
@@ -74,7 +76,7 @@ export function CodeEditor() {
     );
   }
 
-  if (isLoading && !activeFileContent) {
+  if (isLoading && !activeTab?.content) {
     return (
       <div className="h-full w-full bg-[#1e1e1e] flex items-center justify-center text-gray-500">
         <div className="text-center">

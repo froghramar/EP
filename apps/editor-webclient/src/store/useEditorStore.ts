@@ -20,11 +20,22 @@ export interface ChatMessage {
   timestamp: Date;
 }
 
+export interface OpenTab {
+  id: string;
+  fileId: string;
+  filePath: string;
+  fileName: string;
+  content: string;
+  isDirty: boolean; // Has unsaved changes
+}
+
 interface EditorState {
   files: FileNode[];
   activeFileId: string | null;
   activeFileContent: string;
   activeFilePath: string | null;
+  openTabs: OpenTab[];
+  activeTabId: string | null;
   sidebarWidth: number;
   chatWidth: number;
   sidebarVisible: boolean;
@@ -44,7 +55,11 @@ interface EditorState {
   // Actions
   loadFiles: () => Promise<void>;
   setActiveFile: (fileId: string | null, filePath?: string | null) => Promise<void>;
-  updateFileContent: (content: string) => void;
+  openFileInTab: (fileId: string, filePath: string) => Promise<void>;
+  closeTab: (tabId: string) => void;
+  setActiveTab: (tabId: string) => void;
+  updateFileContent: (content: string, tabId?: string) => void;
+  refreshFileContent: (filePath: string) => Promise<void>;
   toggleFolder: (folderId: string) => Promise<void>;
   loadFolderChildren: (folderPath: string, folderId: string) => Promise<void>;
   setSidebarWidth: (width: number) => void;
@@ -94,6 +109,8 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   activeFileId: null,
   activeFileContent: '',
   activeFilePath: null,
+  openTabs: [],
+  activeTabId: null,
   sidebarWidth: 250,
   chatWidth: 350,
   sidebarVisible: true,
@@ -135,31 +152,165 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   },
 
   setActiveFile: async (fileId, filePath) => {
-    if (!fileId || !filePath) {
-      set({ activeFileId: null, activeFileContent: '', activeFilePath: null });
+    // Legacy method - now opens in tab
+    if (fileId && filePath) {
+      await get().openFileInTab(fileId, filePath);
+    }
+  },
+
+  openFileInTab: async (fileId, filePath) => {
+    if (!fileId || !filePath) return;
+
+    const state = get();
+    
+    // Check if file is already open in a tab
+    const existingTab = state.openTabs.find(tab => tab.filePath === filePath);
+    if (existingTab) {
+      // Switch to existing tab
+      set({ activeTabId: existingTab.id, activeFileId: fileId, activeFilePath: filePath, activeFileContent: existingTab.content });
       return;
     }
 
-    set({ isLoading: true, error: null, activeFileId: fileId, activeFilePath: filePath });
+    // Load file content
+    set({ isLoading: true, error: null });
     
     try {
       const content = await fileApi.getFileContent(filePath);
-      set({ activeFileContent: content, isLoading: false });
+      const fileName = basename(filePath);
+      const newTab: OpenTab = {
+        id: crypto.randomUUID(),
+        fileId,
+        filePath,
+        fileName,
+        content,
+        isDirty: false,
+      };
+
+      set((state) => ({
+        openTabs: [...state.openTabs, newTab],
+        activeTabId: newTab.id,
+        activeFileId: fileId,
+        activeFilePath: filePath,
+        activeFileContent: content,
+        isLoading: false,
+      }));
     } catch (error) {
       set({ 
         error: error instanceof Error ? error.message : 'Failed to load file content',
         isLoading: false,
-        activeFileContent: '',
       });
     }
   },
-  
-  updateFileContent: (content) => {
-    set({ activeFileContent: content });
-    // Trigger debounced save
+
+  closeTab: (tabId) => {
     const state = get();
-    if (state.activeFilePath) {
-      debouncedSave(state.activeFilePath, content);
+    const tabIndex = state.openTabs.findIndex(tab => tab.id === tabId);
+    if (tabIndex === -1) return;
+
+    const newTabs = state.openTabs.filter(tab => tab.id !== tabId);
+    
+    // If closing the active tab, switch to another tab or clear
+    let newActiveTabId: string | null = null;
+    let newActiveFileId: string | null = null;
+    let newActiveFilePath: string | null = null;
+    let newActiveFileContent = '';
+
+    if (state.activeTabId === tabId) {
+      if (newTabs.length > 0) {
+        // Switch to the tab that was before this one, or the first tab
+        const targetIndex = Math.min(tabIndex, newTabs.length - 1);
+        const targetTab = newTabs[targetIndex];
+        newActiveTabId = targetTab.id;
+        newActiveFileId = targetTab.fileId;
+        newActiveFilePath = targetTab.filePath;
+        newActiveFileContent = targetTab.content;
+      }
+    } else {
+      // Keep current active tab
+      newActiveTabId = state.activeTabId;
+      const activeTab = state.openTabs.find(tab => tab.id === state.activeTabId);
+      if (activeTab) {
+        newActiveFileId = activeTab.fileId;
+        newActiveFilePath = activeTab.filePath;
+        newActiveFileContent = activeTab.content;
+      }
+    }
+
+    set({
+      openTabs: newTabs,
+      activeTabId: newActiveTabId,
+      activeFileId: newActiveFileId,
+      activeFilePath: newActiveFilePath,
+      activeFileContent: newActiveFileContent,
+    });
+  },
+
+  setActiveTab: (tabId) => {
+    const state = get();
+    const tab = state.openTabs.find(t => t.id === tabId);
+    if (!tab) return;
+
+    set({
+      activeTabId: tabId,
+      activeFileId: tab.fileId,
+      activeFilePath: tab.filePath,
+      activeFileContent: tab.content,
+    });
+  },
+
+  refreshFileContent: async (filePath) => {
+    const state = get();
+    const tab = state.openTabs.find(t => t.filePath === filePath);
+    
+    if (!tab) return;
+
+    try {
+      const content = await fileApi.getFileContent(filePath);
+      
+      set((state) => ({
+        openTabs: state.openTabs.map(t => 
+          t.id === tab.id 
+            ? { ...t, content, isDirty: false }
+            : t
+        ),
+        activeFileContent: state.activeTabId === tab.id ? content : state.activeFileContent,
+      }));
+    } catch (error) {
+      console.error('Failed to refresh file content:', error);
+    }
+  },
+  
+  updateFileContent: (content, tabId) => {
+    const state = get();
+    const targetTabId = tabId || state.activeTabId;
+    
+    if (!targetTabId) {
+      // Fallback to legacy behavior
+      set({ activeFileContent: content });
+      if (state.activeFilePath) {
+        debouncedSave(state.activeFilePath, content);
+      }
+      return;
+    }
+
+    // Update tab content
+    set((state) => {
+      const updatedTabs = state.openTabs.map(tab => 
+        tab.id === targetTabId 
+          ? { ...tab, content, isDirty: true }
+          : tab
+      );
+      
+      return {
+        openTabs: updatedTabs,
+        activeFileContent: state.activeTabId === targetTabId ? content : state.activeFileContent,
+      };
+    });
+
+    // Trigger debounced save
+    const tab = state.openTabs.find(t => t.id === targetTabId);
+    if (tab) {
+      debouncedSave(tab.filePath, content);
     }
   },
   
@@ -717,6 +868,19 @@ export const useEditorStore = create<EditorState>((set, get) => ({
 const debouncedSave = debounce(async (filePath: string, content: string) => {
   try {
     await fileApi.saveFileContent(filePath, content);
+    
+    // Mark tab as not dirty after successful save
+    const state = useEditorStore.getState();
+    const tab = state.openTabs.find(t => t.filePath === filePath);
+    if (tab) {
+      useEditorStore.setState((state) => ({
+        openTabs: state.openTabs.map(t => 
+          t.id === tab.id 
+            ? { ...t, isDirty: false }
+            : t
+        ),
+      }));
+    }
   } catch (error) {
     useEditorStore.getState().setError(
       error instanceof Error ? error.message : 'Failed to save file'

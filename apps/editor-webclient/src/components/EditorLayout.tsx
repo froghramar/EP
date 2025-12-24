@@ -4,6 +4,7 @@ import { CodeEditor } from './CodeEditor';
 import { ChatPanel } from './ChatPanel';
 import { GitPanel } from './GitPanel';
 import { ResizablePanel } from './ResizablePanel';
+import { TabBar } from './TabBar';
 import { useEditorStore } from '../store/useEditorStore';
 
 export function EditorLayout() {
@@ -37,6 +38,7 @@ export function EditorLayout() {
         {!sidebarVisible && (
           <div className="absolute left-0 top-0 bottom-0 w-1 bg-gray-700 hover:bg-blue-500 cursor-pointer z-10" />
         )}
+        <TabBar />
         <div className="flex-1 overflow-hidden">
           <CodeEditor />
         </div>
