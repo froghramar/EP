@@ -26,3 +26,6 @@ export const CORS_ORIGIN_ENV_VALUE = CORS_ORIGIN_ENV;
 // Server configuration
 export const PORT = parseInt(process.env.PORT || '3001', 10);
 
+// Claude AI Configuration
+export const CLAUDE_MODEL = 'claude-sonnet-4-5';
+

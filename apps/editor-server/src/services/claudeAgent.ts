@@ -1,7 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { readFile, writeFile, readdir, stat } from 'fs/promises';
 import { join } from 'path';
-import { WORKSPACE_ROOT } from '../config';
+import { WORKSPACE_ROOT, CLAUDE_MODEL } from '../config';
 import { isSafePath } from '../utils/pathUtils';
 import { isRestrictedPath } from '../utils/restrictedFolders';
 
@@ -238,7 +238,7 @@ Guidelines:
 The workspace root is: ${WORKSPACE_ROOT}`;
 
   let response = await anthropic.messages.create({
-    model: 'claude-3-5-sonnet-20241022',
+    model: CLAUDE_MODEL,
     max_tokens: 4096,
     system: systemPrompt,
     tools,
@@ -275,7 +275,7 @@ The workspace root is: ${WORKSPACE_ROOT}`;
     );
 
     response = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
+      model: CLAUDE_MODEL,
       max_tokens: 4096,
       system: systemPrompt,
       tools,
