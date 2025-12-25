@@ -29,10 +29,7 @@ export function BPMNViewer({ content, onContentChange }: BPMNViewerProps) {
         modelerRef.current = new BpmnJS({
           container: container,
           width: '100%',
-          height: '100%',
-          keyboard: {
-            bindTo: document
-          }
+          height: '100%'
         });
 
         // Listen for diagram changes
