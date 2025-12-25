@@ -3,7 +3,6 @@ import { CLAUDE_MODEL } from '../config';
 import { tools, executeTool, getSystemPrompt } from './agentTools';
 
 const anthropic = new Anthropic({
-  baseURL: process.env.ANTHROPIC_BASE_URL,
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
