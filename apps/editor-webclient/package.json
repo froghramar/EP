@@ -12,6 +12,7 @@
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
     "@tailwindcss/postcss": "^4.1.18",
+    "bpmn-js": "^18.9.1",
     "marked": "^17.0.1",
     "monaco-editor": "^0.55.1",
     "postcss": "^8.5.6",

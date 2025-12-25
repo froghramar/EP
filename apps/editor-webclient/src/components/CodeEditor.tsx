@@ -2,6 +2,7 @@ import { useRef, useMemo } from 'react';
 import Editor from '@monaco-editor/react';
 import { useEditorStore } from '../store/useEditorStore';
 import { MarkdownPreview } from './MarkdownPreview';
+import { BPMNViewer } from './BPMNViewer';
 import type { editor } from 'monaco-editor';
 
 function getLanguageFromFileName(fileName: string): string {
@@ -22,6 +23,7 @@ function getLanguageFromFileName(fileName: string): string {
     go: 'go',
     rs: 'rust',
     yaml: 'yaml',
+    bpmn: 'xml',
   };
   return languageMap[ext || ''] || 'plaintext';
 }
@@ -46,6 +48,11 @@ export function CodeEditor() {
   const isMarkdownFile = useMemo(() => {
     return language === 'markdown';
   }, [language]);
+
+  const isBPMNFile = useMemo(() => {
+    if (!activeTab) return false;
+    return activeTab.fileName.toLowerCase().endsWith('.bpmn');
+  }, [activeTab]);
 
   const handleEditorDidMount = (editor: editor.IStandaloneCodeEditor) => {
     editorRef.current = editor;
@@ -82,6 +89,16 @@ export function CodeEditor() {
 
   return (
     <div className="h-full w-full bg-[#1e1e1e] flex flex-col">
+      {/* BPMN Toolbar - only show for BPMN files */}
+      {isBPMNFile && (
+        <div className="flex items-center border-b border-gray-700 bg-[#252526]" style={{padding: '4px 8px', gap: '4px'}}>
+          <div className="flex items-center gap-2 text-gray-300 text-sm">
+            <span>📊</span>
+            <span>BPMN 2.0 Diagram</span>
+          </div>
+        </div>
+      )}
+
       {/* Markdown Toolbar - only show for markdown files */}
       {isMarkdownFile && (
         <div className="flex items-center border-b border-gray-700 bg-[#252526]" style={{padding: '4px 8px', gap: '4px'}}>
@@ -138,8 +155,22 @@ export function CodeEditor() {
       
       {/* Editor/Preview Content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Editor View */}
-        {(!isMarkdownFile || markdownPreviewMode === 'editor' || markdownPreviewMode === 'split') && (
+        {/* BPMN Viewer */}
+        {isBPMNFile ? (
+          <div className="flex-1">
+            <BPMNViewer 
+              content={activeFileContent} 
+              onContentChange={(newContent) => {
+                if (activeTabId) {
+                  updateFileContent(newContent, activeTabId);
+                }
+              }}
+            />
+          </div>
+        ) : (
+          <>
+            {/* Editor View */}
+            {(!isMarkdownFile || markdownPreviewMode === 'editor' || markdownPreviewMode === 'split') && (
           <div className={isMarkdownFile && markdownPreviewMode === 'split' ? 'flex-1 border-r border-gray-700' : 'flex-1'}>
             <Editor
               height="100%"
@@ -168,11 +199,13 @@ export function CodeEditor() {
           </div>
         )}
         
-        {/* Preview View */}
-        {isMarkdownFile && (markdownPreviewMode === 'preview' || markdownPreviewMode === 'split') && (
-          <div className={markdownPreviewMode === 'split' ? 'flex-1' : 'flex-1'}>
-            <MarkdownPreview content={activeFileContent} />
-          </div>
+            {/* Preview View */}
+            {isMarkdownFile && (markdownPreviewMode === 'preview' || markdownPreviewMode === 'split') && (
+              <div className={markdownPreviewMode === 'split' ? 'flex-1' : 'flex-1'}>
+                <MarkdownPreview content={activeFileContent} />
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

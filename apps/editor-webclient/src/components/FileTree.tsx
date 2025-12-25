@@ -168,7 +168,9 @@ function FileTreeItem({ file, level }: FileTreeItemProps) {
               {file.expanded ? '📂' : '📁'}
             </span>
           ) : (
-            <span className="mr-1 text-xs">📄</span>
+            <span className="mr-1 text-xs">
+              {file.name.toLowerCase().endsWith('.bpmn') ? '📊' : '📄'}
+            </span>
           )}
           <span className="text-sm truncate flex-1">{file.name}</span>
           {gitFileStatus && (
