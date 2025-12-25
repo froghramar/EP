@@ -151,8 +151,6 @@ export function BPMNViewer({ content, onContentChange }: BPMNViewerProps) {
       {/* BPMN Toolbar */}
       <div className="flex items-center justify-between border-b border-gray-300 bg-gray-50 px-4 py-2">
         <div className="flex items-center gap-3">
-          <span className="text-sm font-semibold text-gray-700">📊 BPMN 2.0</span>
-          
           {/* Mode Toggle Buttons */}
           <div className="flex items-center gap-1 border border-gray-300 rounded">
             <button

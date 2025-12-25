@@ -89,15 +89,6 @@ export function CodeEditor() {
 
   return (
     <div className="h-full w-full bg-[#1e1e1e] flex flex-col">
-      {/* BPMN Toolbar - only show for BPMN files */}
-      {isBPMNFile && (
-        <div className="flex items-center border-b border-gray-700 bg-[#252526]" style={{padding: '4px 8px', gap: '4px'}}>
-          <div className="flex items-center gap-2 text-gray-300 text-sm">
-            <span>📊</span>
-            <span>BPMN 2.0 Diagram</span>
-          </div>
-        </div>
-      )}
 
       {/* Markdown Toolbar - only show for markdown files */}
       {isMarkdownFile && (
