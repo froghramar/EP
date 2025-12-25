@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { fileApi, gitApi, chatApi, type GitStatus, type GitCommit } from '../services/api';
 import { debounce } from '../utils/debounce';
 import { dirname, basename } from '../utils/path';
+import { FileTypeRegistry } from '../config/fileTypeRegistry';
 
 export interface FileNode {
   id: string;
@@ -54,8 +55,8 @@ interface EditorState {
   gitCommits: GitCommit[];
   gitPanelVisible: boolean;
   
-  // Markdown preview
-  markdownPreviewMode: 'editor' | 'preview' | 'split';
+  // File view modes (per file type)
+  fileViewModes: Map<string, 'editor' | 'preview' | 'split'>;
   
   // Actions
   loadFiles: () => Promise<void>;
@@ -111,8 +112,9 @@ interface EditorState {
   toggleGitPanel: () => void;
   refreshGit: () => Promise<void>;
   
-  // Markdown preview
-  setMarkdownPreviewMode: (mode: 'editor' | 'preview' | 'split') => void;
+  // View modes
+  setFileViewMode: (fileId: string, mode: 'editor' | 'preview' | 'split') => void;
+  getFileViewMode: (fileId: string, defaultMode: 'editor' | 'preview' | 'split') => 'editor' | 'preview' | 'split';
 }
 
 export const useEditorStore = create<EditorState>((set, get) => ({
@@ -140,8 +142,8 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   gitCommits: [],
   gitPanelVisible: false,
   
-  // Markdown preview
-  markdownPreviewMode: 'editor',
+  // File view modes
+  fileViewModes: new Map(),
 
   loadFiles: async () => {
     set({ isLoading: true, error: null });
@@ -464,27 +466,10 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   createFile: async (path, type, content) => {
     set({ isLoading: true, error: null });
     try {
-      // If creating a BPMN file and no content provided, use template
+      // If creating a file and no content provided, check for template
       let fileContent = content;
-      if (type === 'file' && path.toLowerCase().endsWith('.bpmn') && !content) {
-        fileContent = `<?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" 
-                   xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" 
-                   xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" 
-                   xmlns:di="http://www.omg.org/spec/DD/20100524/DI" 
-                   id="Definitions_1" 
-                   targetNamespace="http://bpmn.io/schema/bpmn">
-  <bpmn:process id="Process_1" isExecutable="false">
-    <bpmn:startEvent id="StartEvent_1" />
-  </bpmn:process>
-  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
-    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_1" bpmnElement="StartEvent_1">
-        <dc:Bounds x="173" y="102" width="36" height="36" />
-      </bpmndi:BPMNShape>
-    </bpmndi:BPMNPlane>
-  </bpmndi:BPMNDiagram>
-</bpmn:definitions>`;
+      if (type === 'file' && !content) {
+        fileContent = FileTypeRegistry.getInitialContent(path);
       }
       
       await fileApi.createFile(path, type, fileContent);
@@ -964,9 +949,15 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     await get().loadGitCommits();
   },
   
-  // Markdown preview
-  setMarkdownPreviewMode: (mode) => {
-    set({ markdownPreviewMode: mode });
+  // View modes
+  setFileViewMode: (fileId, mode) => {
+    const fileViewModes = new Map(get().fileViewModes);
+    fileViewModes.set(fileId, mode);
+    set({ fileViewModes });
+  },
+  
+  getFileViewMode: (fileId, defaultMode) => {
+    return get().fileViewModes.get(fileId) || defaultMode;
   },
 }));
 
