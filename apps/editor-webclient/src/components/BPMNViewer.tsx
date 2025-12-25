@@ -17,105 +17,131 @@ export function BPMNViewer({ content, onContentChange }: BPMNViewerProps) {
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'visual' | 'xml'>('visual');
   const [xmlContent, setXmlContent] = useState(content);
+  const [isModelerReady, setIsModelerReady] = useState(false);
 
+  // Initialize modeler once
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || modelerRef.current) return;
 
     const container = containerRef.current;
 
-    // Initialize modeler if not already created
-    if (!modelerRef.current) {
-      try {
-        modelerRef.current = new BpmnJS({
-          container: container,
-          width: '100%',
-          height: '100%'
-        });
+    try {
+      modelerRef.current = new BpmnJS({
+        container: container,
+        width: '100%',
+        height: '100%'
+      });
 
-        // Listen for diagram changes
-        modelerRef.current.on('commandStack.changed', async () => {
-          if (onContentChange && modelerRef.current) {
-            try {
-              const { xml } = await modelerRef.current.saveXML({ format: true });
-              if (xml) {
-                onContentChange(xml);
-              }
-            } catch (err) {
-              console.error('Error saving BPMN XML:', err);
+      // Listen for diagram changes
+      modelerRef.current.on('commandStack.changed', async () => {
+        if (onContentChange && modelerRef.current) {
+          try {
+            const { xml } = await modelerRef.current.saveXML({ format: true });
+            if (xml) {
+              onContentChange(xml);
             }
+          } catch (err) {
+            console.error('Error saving BPMN XML:', err);
           }
-        });
-      } catch (initErr) {
-        console.error('Error initializing BPMN modeler:', initErr);
-        setError('Failed to initialize BPMN editor');
-        setLoading(false);
-        return;
-      }
+        }
+      });
+
+      // Mark modeler as ready
+      setIsModelerReady(true);
+    } catch (initErr) {
+      console.error('[BPMNViewer] Error initializing BPMN modeler:', initErr);
+      setError('Failed to initialize BPMN editor');
+      setLoading(false);
     }
 
-    const modeler = modelerRef.current;
+    // Cleanup only on unmount
+    return () => {
+      if (modelerRef.current) {
+        try {
+          modelerRef.current.destroy();
+        } catch (err) {
+          console.error('Error destroying modeler:', err);
+        }
+        modelerRef.current = null;
+      }
+      setIsModelerReady(false);
+    };
+  }, []);
 
-    // Load and render BPMN diagram
+  // Load diagram when content changes or switching back to visual mode
+  useEffect(() => {
+    const modeler = modelerRef.current;
+    
+    if (!modeler || !isModelerReady || viewMode !== 'visual') {
+      if (viewMode !== 'visual') {
+        setLoading(false);
+      }
+      return;
+    }
+
     const loadDiagram = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        if (!content || content.trim() === '') {
+        if (!xmlContent || xmlContent.trim() === '') {
           setError('No BPMN content to display');
           setLoading(false);
           return;
         }
 
-        await modeler.importXML(content);
-        
-        // Small delay to ensure DOM is fully updated
-        await new Promise(resolve => setTimeout(resolve, 50));
-        
-        // Fit diagram to viewport with error handling
-        try {
-          const canvas = modeler.get('canvas') as any;
-          if (canvas && canvas.viewbox && typeof canvas.zoom === 'function') {
-            const viewbox = canvas.viewbox();
-            
-            // Check if viewbox has valid dimensions
-            if (viewbox && viewbox.inner && 
-                isFinite(viewbox.inner.width) && 
-                isFinite(viewbox.inner.height) &&
-                viewbox.inner.width > 0 && 
-                viewbox.inner.height > 0) {
-              canvas.zoom('fit-viewport');
-            } else {
-              // Set a default zoom if dimensions are invalid
-              canvas.zoom(1.0);
-            }
-          }
-        } catch (zoomErr) {
-          console.warn('Could not fit diagram to viewport:', zoomErr);
-          // Continue anyway - diagram is loaded even if zoom fails
+        // Validate that content looks like XML
+        const trimmedContent = xmlContent.trim();
+        if (!trimmedContent.startsWith('<') || !trimmedContent.includes('bpmn')) {
+          setError('Invalid BPMN content - must be valid BPMN 2.0 XML');
+          setLoading(false);
+          return;
         }
 
+        // Clear any existing diagram first
+        try {
+          await modeler.clear();
+        } catch (clearErr) {
+          console.warn('Could not clear existing diagram:', clearErr);
+        }
+
+        // Add delay before import to ensure container is ready
+        await new Promise(resolve => setTimeout(resolve, 50));
+
+        const result = await modeler.importXML(xmlContent);
+        
+        // Check for warnings
+        if (result.warnings && result.warnings.length > 0) {
+          console.warn('BPMN import warnings:', result.warnings);
+        }
+        
+        // Mark as loaded immediately - don't wait for zoom
         setLoading(false);
-      } catch (err) {
-        console.error('Error rendering BPMN diagram:', err);
-        setError(err instanceof Error ? err.message : 'Failed to render BPMN diagram');
+        
+        // Try to zoom after a delay (non-blocking, won't affect display)
+        setTimeout(() => {
+          try {
+            if (!modelerRef.current) return;
+            
+            const canvas = modelerRef.current.get('canvas');
+            
+            // Simply set a reasonable default zoom level
+            // This avoids fit-viewport issues with invalid dimensions
+            canvas.zoom(0.75);
+          } catch (zoomErr) {
+            console.warn('Zoom failed:', zoomErr);
+          }
+        }, 300);
+      } catch (err: any) {
+        console.error('[BPMNViewer] Error rendering BPMN diagram:', err);
+        const errorMessage = err?.message || 'Failed to render BPMN diagram';
+        setError(errorMessage);
         setLoading(false);
       }
     };
 
-    // Only load diagram if in visual mode
-    if (viewMode === 'visual') {
-      loadDiagram();
-    }
-
-    // Cleanup on unmount
-    return () => {
-      if (modelerRef.current) {
-        modelerRef.current.destroy();
-        modelerRef.current = null;
-      }
-    };
-  }, [content, onContentChange, viewMode]);
+    loadDiagram();
+  }, [xmlContent, viewMode, isModelerReady]);
 
   // Sync content when switching modes
   useEffect(() => {
@@ -177,13 +203,23 @@ export function BPMNViewer({ content, onContentChange }: BPMNViewerProps) {
                     try {
                       const canvas = modelerRef.current.get('canvas') as any;
                       const viewbox = canvas.viewbox();
+                      
                       if (viewbox && viewbox.inner && 
-                          isFinite(viewbox.inner.width) && 
-                          isFinite(viewbox.inner.height)) {
-                        canvas.zoom('fit-viewport');
+                          isFinite(viewbox.inner.width) && isFinite(viewbox.inner.height) &&
+                          viewbox.inner.width > 0 && viewbox.inner.height > 0) {
+                        canvas.zoom('fit-viewport', 'auto');
+                      } else {
+                        console.warn('Cannot fit viewport - invalid dimensions');
+                        canvas.zoom(0.8);
                       }
                     } catch (err) {
                       console.warn('Zoom failed:', err);
+                      try {
+                        const canvas = modelerRef.current.get('canvas') as any;
+                        canvas.zoom(0.8);
+                      } catch (fallbackErr) {
+                        console.warn('Fallback zoom failed:', fallbackErr);
+                      }
                     }
                   }
                 }}
@@ -236,11 +272,14 @@ export function BPMNViewer({ content, onContentChange }: BPMNViewerProps) {
       </div>
 
       {/* Content Area */}
-      {viewMode === 'visual' ? (
-        // Visual BPMN Editor
-        <div className="flex-1 relative overflow-hidden">
+      <div className="flex-1 relative overflow-hidden">
+        {/* Visual BPMN Editor */}
+        <div 
+          className="w-full h-full"
+          style={{ display: viewMode === 'visual' ? 'block' : 'none' }}
+        >
           {loading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-white">
+            <div className="absolute inset-0 flex items-center justify-center bg-white z-10">
               <div className="text-center">
                 <div className="text-lg text-gray-600">Loading BPMN diagram...</div>
               </div>
@@ -248,7 +287,7 @@ export function BPMNViewer({ content, onContentChange }: BPMNViewerProps) {
           )}
           
           {error && (
-            <div className="absolute inset-0 flex items-center justify-center bg-white">
+            <div className="absolute inset-0 flex items-center justify-center bg-white z-10">
               <div className="text-center max-w-md">
                 <div className="text-2xl mb-2">⚠️</div>
                 <div className="text-lg font-semibold text-red-600 mb-2">Error Loading BPMN</div>
@@ -260,12 +299,14 @@ export function BPMNViewer({ content, onContentChange }: BPMNViewerProps) {
           <div 
             ref={containerRef} 
             className="w-full h-full"
-            style={{ display: (loading || error) ? 'none' : 'block' }}
           />
         </div>
-      ) : (
-        // XML Editor
-        <div className="flex-1">
+        
+        {/* XML Editor */}
+        <div 
+          className="w-full h-full"
+          style={{ display: viewMode === 'xml' ? 'block' : 'none' }}
+        >
           <Editor
             height="100%"
             language="xml"
@@ -284,7 +325,7 @@ export function BPMNViewer({ content, onContentChange }: BPMNViewerProps) {
             }}
           />
         </div>
-      )}
+      </div>
     </div>
   );
 }
