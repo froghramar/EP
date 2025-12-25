@@ -117,21 +117,6 @@ export function BPMNViewer({ content, onContentChange }: BPMNViewerProps) {
         
         // Mark as loaded immediately - don't wait for zoom
         setLoading(false);
-        
-        // Try to zoom after a delay (non-blocking, won't affect display)
-        setTimeout(() => {
-          try {
-            if (!modelerRef.current) return;
-            
-            const canvas = modelerRef.current.get('canvas');
-            
-            // Simply set a reasonable default zoom level
-            // This avoids fit-viewport issues with invalid dimensions
-            canvas.zoom(0.75);
-          } catch (zoomErr) {
-            console.warn('Zoom failed:', zoomErr);
-          }
-        }, 300);
       } catch (err: any) {
         console.error('[BPMNViewer] Error rendering BPMN diagram:', err);
         const errorMessage = err?.message || 'Failed to render BPMN diagram';
