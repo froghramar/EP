@@ -4,6 +4,7 @@ import { tools, executeTool, getSystemPrompt } from './agentTools';
 import { Message } from './claudeAgent';
 
 const anthropic = new Anthropic({
+  baseURL: process.env.ANTHROPIC_BASE_URL,
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
