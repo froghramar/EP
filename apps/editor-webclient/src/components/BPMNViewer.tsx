@@ -131,21 +131,7 @@ export function BPMNViewer({ content, onContentChange }: BPMNViewerProps) {
     }
   };
 
-  const handleModeSwitch = async (mode: 'visual' | 'xml') => {
-    if (mode === 'xml' && viewMode === 'visual' && modelerRef.current) {
-      // Save current visual state to XML before switching
-      try {
-        const { xml } = await modelerRef.current.saveXML({ format: true });
-        if (xml) {
-          setXmlContent(xml);
-          if (onContentChange) {
-            onContentChange(xml);
-          }
-        }
-      } catch (err) {
-        console.error('Error saving XML:', err);
-      }
-    }
+  const handleModeSwitch = (mode: 'visual' | 'xml') => {
     setViewMode(mode);
   };
 
