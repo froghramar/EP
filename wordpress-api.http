@@ -1,0 +1,225 @@
+### WordPress REST API Tests
+### Base URL: http://localhost:3001
+### Make sure your server is running and WordPress credentials are configured
+
+###############################################################################
+### POSTS
+###############################################################################
+
+### List all posts
+GET http://localhost:3001/api/wordpress/posts
+
+### List posts with filters
+GET http://localhost:3001/api/wordpress/posts?per_page=5&status=publish&search=test
+
+### Get specific post by ID
+GET http://localhost:3001/api/wordpress/posts/1
+
+### Create a new post (draft)
+POST http://localhost:3001/api/wordpress/posts
+Content-Type: application/json
+
+{
+  "title": "Test Post from API",
+  "content": "This is a test post created via the REST API.",
+  "status": "draft",
+  "excerpt": "A brief excerpt of the test post"
+}
+
+### Create a post with categories and tags
+POST http://localhost:3001/api/wordpress/posts
+Content-Type: application/json
+
+{
+  "title": "Post with Taxonomies",
+  "content": "This post has categories and tags assigned.",
+  "status": "draft",
+  "categories": [1, 2],
+  "tags": [3, 4]
+}
+
+### Update a post
+PUT http://localhost:3001/api/wordpress/posts/1
+Content-Type: application/json
+
+{
+  "title": "Updated Post Title",
+  "status": "publish"
+}
+
+### Delete a post (move to trash)
+DELETE http://localhost:3001/api/wordpress/posts/123
+
+### Delete a post permanently
+DELETE http://localhost:3001/api/wordpress/posts/123?force=true
+
+###############################################################################
+### PAGES
+###############################################################################
+
+### List all pages
+GET http://localhost:3001/api/wordpress/pages
+
+### List pages with filters
+GET http://localhost:3001/api/wordpress/pages?per_page=10&status=publish
+
+### Get specific page by ID
+GET http://localhost:3001/api/wordpress/pages/2
+
+### Create a new page
+POST http://localhost:3001/api/wordpress/pages
+Content-Type: application/json
+
+{
+  "title": "Test Page",
+  "content": "This is a test page created via the REST API.",
+  "status": "draft"
+}
+
+### Create a child page
+POST http://localhost:3001/api/wordpress/pages
+Content-Type: application/json
+
+{
+  "title": "Child Page",
+  "content": "This is a child page.",
+  "status": "draft",
+  "parent": 2
+}
+
+### Update a page
+PUT http://localhost:3001/api/wordpress/pages/2
+Content-Type: application/json
+
+{
+  "title": "Updated Page Title",
+  "content": "Updated page content"
+}
+
+### Delete a page (move to trash)
+DELETE http://localhost:3001/api/wordpress/pages/456
+
+### Delete a page permanently
+DELETE http://localhost:3001/api/wordpress/pages/456?force=true
+
+###############################################################################
+### CATEGORIES
+###############################################################################
+
+### List all categories
+GET http://localhost:3001/api/wordpress/categories
+
+### List categories (exclude empty)
+GET http://localhost:3001/api/wordpress/categories?hide_empty=true
+
+### Search categories
+GET http://localhost:3001/api/wordpress/categories?search=technology
+
+### Create a new category
+POST http://localhost:3001/api/wordpress/categories
+Content-Type: application/json
+
+{
+  "name": "Technology",
+  "description": "Posts about technology and innovation"
+}
+
+### Create a child category
+POST http://localhost:3001/api/wordpress/categories
+Content-Type: application/json
+
+{
+  "name": "Web Development",
+  "description": "Web development related posts",
+  "parent": 1
+}
+
+###############################################################################
+### TAGS
+###############################################################################
+
+### List all tags
+GET http://localhost:3001/api/wordpress/tags
+
+### List tags (exclude empty)
+GET http://localhost:3001/api/wordpress/tags?hide_empty=true
+
+### Search tags
+GET http://localhost:3001/api/wordpress/tags?search=javascript
+
+### Create a new tag
+POST http://localhost:3001/api/wordpress/tags
+Content-Type: application/json
+
+{
+  "name": "JavaScript",
+  "description": "JavaScript programming language"
+}
+
+### Create another tag
+POST http://localhost:3001/api/wordpress/tags
+Content-Type: application/json
+
+{
+  "name": "React",
+  "description": "React library for building UIs"
+}
+
+###############################################################################
+### MEDIA
+###############################################################################
+
+### List all media
+GET http://localhost:3001/api/wordpress/media
+
+### List images only
+GET http://localhost:3001/api/wordpress/media?media_type=image
+
+### List videos only
+GET http://localhost:3001/api/wordpress/media?media_type=video
+
+### Search media
+GET http://localhost:3001/api/wordpress/media?search=logo
+
+### Get specific media item by ID
+GET http://localhost:3001/api/wordpress/media/10
+
+###############################################################################
+### COMMENTS
+###############################################################################
+
+### List all comments
+GET http://localhost:3001/api/wordpress/comments
+
+### List comments for specific post
+GET http://localhost:3001/api/wordpress/comments?post=1
+
+### List approved comments only
+GET http://localhost:3001/api/wordpress/comments?status=approved
+
+### Create a new comment
+POST http://localhost:3001/api/wordpress/comments
+Content-Type: application/json
+
+{
+  "post": 1,
+  "content": "This is a test comment from the REST API.",
+  "author_name": "Test User",
+  "author_email": "test@example.com"
+}
+
+###############################################################################
+### USERS
+###############################################################################
+
+### List all users
+GET http://localhost:3001/api/wordpress/users
+
+### Search users
+GET http://localhost:3001/api/wordpress/users?search=john
+
+### List users by role
+GET http://localhost:3001/api/wordpress/users?roles=administrator
+
+### List users with pagination
+GET http://localhost:3001/api/wordpress/users?per_page=5&page=1
