@@ -5,7 +5,7 @@ import Anthropic from '@anthropic-ai/sdk';
  */
 export const fileTools: Anthropic.Tool[] = [
   {
-    name: 'read_file',
+    name: 'file_read',
     description: 'Read the contents of a file in the workspace. Use this to examine code, configuration files, or any text-based files.',
     input_schema: {
       type: 'object',
@@ -19,7 +19,7 @@ export const fileTools: Anthropic.Tool[] = [
     },
   },
   {
-    name: 'write_file',
+    name: 'file_write',
     description: 'Write or update a file in the workspace. Use this to create new files or modify existing ones.',
     input_schema: {
       type: 'object',
@@ -37,7 +37,7 @@ export const fileTools: Anthropic.Tool[] = [
     },
   },
   {
-    name: 'list_files',
+    name: 'file_list',
     description: 'List files and directories in a given path. Use this to explore the project structure.',
     input_schema: {
       type: 'object',
@@ -51,7 +51,7 @@ export const fileTools: Anthropic.Tool[] = [
     },
   },
   {
-    name: 'search_files',
+    name: 'file_search',
     description: 'Search for files containing specific text or patterns. Use this to find code, functions, or specific content.',
     input_schema: {
       type: 'object',
@@ -69,7 +69,7 @@ export const fileTools: Anthropic.Tool[] = [
     },
   },
   {
-    name: 'delete_file',
+    name: 'file_delete',
     description: 'Delete a file or directory from the workspace. Use this to remove files that are no longer needed. Be careful - this action cannot be undone.',
     input_schema: {
       type: 'object',

@@ -24,7 +24,7 @@ export async function executeFileTool(
 
   try {
     switch (toolName) {
-      case 'read_file': {
+      case 'file_read': {
         const filePath = join(WORKSPACE_ROOT, toolInput.path);
 
         if (!isSafePath(filePath)) {
@@ -39,22 +39,22 @@ export async function executeFileTool(
         return JSON.stringify({ content, path: toolInput.path });
       }
 
-      case 'write_file': {
+      case 'file_write': {
         const filePath = join(WORKSPACE_ROOT, toolInput.path);
 
-        console.log(`[write_file] Attempting to write file: ${filePath}`);
-        console.log(`[write_file] Relative path: ${toolInput.path}`);
-        console.log(`[write_file] Content length: ${toolInput.content?.length || 0} characters`);
+        console.log(`[file_write] Attempting to write file: ${filePath}`);
+        console.log(`[file_write] Relative path: ${toolInput.path}`);
+        console.log(`[file_write] Content length: ${toolInput.content?.length || 0} characters`);
 
         if (!isSafePath(filePath)) {
           const error = 'Access denied: path outside workspace';
-          console.error(`[write_file] ${error}`);
+          console.error(`[file_write] ${error}`);
           return JSON.stringify({ error });
         }
 
         if (isRestrictedPath(filePath)) {
           const error = 'Access denied: cannot write to restricted folders';
-          console.error(`[write_file] ${error}`);
+          console.error(`[file_write] ${error}`);
           return JSON.stringify({ error });
         }
 
@@ -63,28 +63,28 @@ export async function executeFileTool(
         try {
           await stat(filePath);
           fileExists = true;
-          console.log(`[write_file] File exists, will be modified`);
+          console.log(`[file_write] File exists, will be modified`);
         } catch {
           // File doesn't exist, will be created
           fileExists = false;
-          console.log(`[write_file] File does not exist, will be created`);
+          console.log(`[file_write] File does not exist, will be created`);
         }
 
         // Ensure directory exists
         const dirPath = dirname(filePath);
         try {
           await mkdir(dirPath, { recursive: true });
-          console.log(`[write_file] Directory ensured: ${dirPath}`);
+          console.log(`[file_write] Directory ensured: ${dirPath}`);
         } catch (error) {
           // Directory might already exist, but log if there's an actual error
           if (error instanceof Error && error.message.includes('EEXIST') === false) {
-            console.error(`[write_file] Error creating directory:`, error);
+            console.error(`[file_write] Error creating directory:`, error);
           }
         }
 
         try {
           await writeFile(filePath, toolInput.content, 'utf-8');
-          console.log(`[write_file] Successfully wrote file: ${filePath}`);
+          console.log(`[file_write] Successfully wrote file: ${filePath}`);
 
           // Notify file watcher if enabled
           if (notifyFileWatcher) {
@@ -93,18 +93,18 @@ export async function executeFileTool(
             } else {
               fileWatcher.notifyFileCreated(toolInput.path, toolInput.content);
             }
-            console.log(`[write_file] File watcher notified`);
+            console.log(`[file_write] File watcher notified`);
           }
 
           return JSON.stringify({ success: true, path: toolInput.path });
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-          console.error(`[write_file] Error writing file:`, errorMessage, error);
+          console.error(`[file_write] Error writing file:`, errorMessage, error);
           return JSON.stringify({ error: `Failed to write file: ${errorMessage}` });
         }
       }
 
-      case 'list_files': {
+      case 'file_list': {
         const dirPath = join(WORKSPACE_ROOT, toolInput.path);
 
         if (!isSafePath(dirPath)) {
@@ -129,7 +129,7 @@ export async function executeFileTool(
         return JSON.stringify({ files, path: toolInput.path });
       }
 
-      case 'search_files': {
+      case 'file_search': {
         const searchPath = toolInput.path ? join(WORKSPACE_ROOT, toolInput.path) : WORKSPACE_ROOT;
         const results: Array<{ file: string; line: number; content: string }> = [];
 
@@ -169,21 +169,21 @@ export async function executeFileTool(
         return JSON.stringify({ results: results.slice(0, 50), query: toolInput.query });
       }
 
-      case 'delete_file': {
+      case 'file_delete': {
         const filePath = join(WORKSPACE_ROOT, toolInput.path);
 
-        console.log(`[delete_file] Attempting to delete: ${filePath}`);
-        console.log(`[delete_file] Relative path: ${toolInput.path}`);
+        console.log(`[file_delete] Attempting to delete: ${filePath}`);
+        console.log(`[file_delete] Relative path: ${toolInput.path}`);
 
         if (!isSafePath(filePath)) {
           const error = 'Access denied: path outside workspace';
-          console.error(`[delete_file] ${error}`);
+          console.error(`[file_delete] ${error}`);
           return JSON.stringify({ error });
         }
 
         if (isRestrictedPath(filePath)) {
           const error = 'Access denied: cannot delete restricted folders';
-          console.error(`[delete_file] ${error}`);
+          console.error(`[file_delete] ${error}`);
           return JSON.stringify({ error });
         }
 
@@ -193,23 +193,23 @@ export async function executeFileTool(
           if (stats.isDirectory()) {
             // Remove directory recursively
             await rm(filePath, { recursive: true, force: true });
-            console.log(`[delete_file] Successfully deleted directory: ${filePath}`);
+            console.log(`[file_delete] Successfully deleted directory: ${filePath}`);
           } else {
             // Remove file
             await unlink(filePath);
-            console.log(`[delete_file] Successfully deleted file: ${filePath}`);
+            console.log(`[file_delete] Successfully deleted file: ${filePath}`);
           }
 
           // Notify file watcher if enabled
           if (notifyFileWatcher) {
             fileWatcher.notifyFileDeleted(toolInput.path);
-            console.log(`[delete_file] File watcher notified`);
+            console.log(`[file_delete] File watcher notified`);
           }
 
           return JSON.stringify({ success: true, path: toolInput.path });
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-          console.error(`[delete_file] Error deleting file:`, errorMessage, error);
+          console.error(`[file_delete] Error deleting file:`, errorMessage, error);
           return JSON.stringify({ error: `Failed to delete file: ${errorMessage}` });
         }
       }

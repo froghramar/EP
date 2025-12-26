@@ -29,9 +29,7 @@ export async function executeTool(
   options: ExecuteToolOptions = {}
 ): Promise<string> {
   // Route to file system executor
-  if (toolName.startsWith('read_') || toolName.startsWith('write_') || 
-      toolName.startsWith('list_') || toolName.startsWith('search_') || 
-      toolName.startsWith('delete_')) {
+  if (toolName.startsWith('file_')) {
     return executeFileTool(toolName, toolInput, options);
   }
   
