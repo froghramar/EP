@@ -275,6 +275,65 @@ router.get('/api/wordpress/tags', async (ctx) => {
   }
 });
 
+// Get a specific category
+router.get('/api/wordpress/categories/:id', async (ctx) => {
+  try {
+    const id = Number(ctx.params.id);
+    const result = await executeTool('wp_get_category', { id });
+    const response = JSON.parse(result);
+
+    if (response.error) {
+      ctx.status = response.status || 404;
+      ctx.body = response;
+    } else {
+      ctx.body = response;
+    }
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+// Update a category
+router.put('/api/wordpress/categories/:id', async (ctx) => {
+  try {
+    const id = Number(ctx.params.id);
+    const data = { id, ...(ctx.request.body as any) };
+    const result = await executeTool('wp_update_category', data);
+    const response = JSON.parse(result);
+
+    if (response.error) {
+      ctx.status = response.status || 400;
+      ctx.body = response;
+    } else {
+      ctx.body = response;
+    }
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+// Delete a category
+router.delete('/api/wordpress/categories/:id', async (ctx) => {
+  try {
+    const id = Number(ctx.params.id);
+    const force = ctx.query.force === 'true';
+    const result = await executeTool('wp_delete_category', { id, force });
+    const response = JSON.parse(result);
+
+    if (response.error) {
+      ctx.status = response.status || 400;
+      ctx.body = response;
+    } else {
+      ctx.body = response;
+    }
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
 // Create a tag
 router.post('/api/wordpress/tags', async (ctx) => {
   try {
@@ -286,6 +345,65 @@ router.post('/api/wordpress/tags', async (ctx) => {
       ctx.body = response;
     } else {
       ctx.status = 201;
+      ctx.body = response;
+    }
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+// Get a specific tag
+router.get('/api/wordpress/tags/:id', async (ctx) => {
+  try {
+    const id = Number(ctx.params.id);
+    const result = await executeTool('wp_get_tag', { id });
+    const response = JSON.parse(result);
+
+    if (response.error) {
+      ctx.status = response.status || 404;
+      ctx.body = response;
+    } else {
+      ctx.body = response;
+    }
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+// Update a tag
+router.put('/api/wordpress/tags/:id', async (ctx) => {
+  try {
+    const id = Number(ctx.params.id);
+    const data = { id, ...(ctx.request.body as any) };
+    const result = await executeTool('wp_update_tag', data);
+    const response = JSON.parse(result);
+
+    if (response.error) {
+      ctx.status = response.status || 400;
+      ctx.body = response;
+    } else {
+      ctx.body = response;
+    }
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+// Delete a tag
+router.delete('/api/wordpress/tags/:id', async (ctx) => {
+  try {
+    const id = Number(ctx.params.id);
+    const force = ctx.query.force === 'true';
+    const result = await executeTool('wp_delete_tag', { id, force });
+    const response = JSON.parse(result);
+
+    if (response.error) {
+      ctx.status = response.status || 400;
+      ctx.body = response;
+    } else {
       ctx.body = response;
     }
   } catch (error) {
@@ -337,6 +455,46 @@ router.get('/api/wordpress/media/:id', async (ctx) => {
   }
 });
 
+// Update a media item
+router.put('/api/wordpress/media/:id', async (ctx) => {
+  try {
+    const id = Number(ctx.params.id);
+    const data = { id, ...(ctx.request.body as any) };
+    const result = await executeTool('wp_update_media', data);
+    const response = JSON.parse(result);
+
+    if (response.error) {
+      ctx.status = response.status || 400;
+      ctx.body = response;
+    } else {
+      ctx.body = response;
+    }
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+// Delete a media item
+router.delete('/api/wordpress/media/:id', async (ctx) => {
+  try {
+    const id = Number(ctx.params.id);
+    const force = ctx.query.force === 'true';
+    const result = await executeTool('wp_delete_media', { id, force });
+    const response = JSON.parse(result);
+
+    if (response.error) {
+      ctx.status = response.status || 400;
+      ctx.body = response;
+    } else {
+      ctx.body = response;
+    }
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
 // List comments
 router.get('/api/wordpress/comments', async (ctx) => {
   try {
@@ -351,6 +509,25 @@ router.get('/api/wordpress/comments', async (ctx) => {
 
     if (response.error) {
       ctx.status = response.status || 500;
+      ctx.body = response;
+    } else {
+      ctx.body = response;
+    }
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+// Get a specific comment
+router.get('/api/wordpress/comments/:id', async (ctx) => {
+  try {
+    const id = Number(ctx.params.id);
+    const result = await executeTool('wp_get_comment', { id });
+    const response = JSON.parse(result);
+
+    if (response.error) {
+      ctx.status = response.status || 404;
       ctx.body = response;
     } else {
       ctx.body = response;
@@ -380,6 +557,46 @@ router.post('/api/wordpress/comments', async (ctx) => {
   }
 });
 
+// Update a comment
+router.put('/api/wordpress/comments/:id', async (ctx) => {
+  try {
+    const id = Number(ctx.params.id);
+    const data = { id, ...(ctx.request.body as any) };
+    const result = await executeTool('wp_update_comment', data);
+    const response = JSON.parse(result);
+
+    if (response.error) {
+      ctx.status = response.status || 400;
+      ctx.body = response;
+    } else {
+      ctx.body = response;
+    }
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+// Delete a comment
+router.delete('/api/wordpress/comments/:id', async (ctx) => {
+  try {
+    const id = Number(ctx.params.id);
+    const force = ctx.query.force === 'true';
+    const result = await executeTool('wp_delete_comment', { id, force });
+    const response = JSON.parse(result);
+
+    if (response.error) {
+      ctx.status = response.status || 400;
+      ctx.body = response;
+    } else {
+      ctx.body = response;
+    }
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
 // List users
 router.get('/api/wordpress/users', async (ctx) => {
   try {
@@ -398,6 +615,186 @@ router.get('/api/wordpress/users', async (ctx) => {
 
     if (response.error) {
       ctx.status = response.status || 500;
+      ctx.body = response;
+    } else {
+      ctx.body = response;
+    }
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+// Get a specific user
+router.get('/api/wordpress/users/:id', async (ctx) => {
+  try {
+    const id = Number(ctx.params.id);
+    const result = await executeTool('wp_get_user', { id });
+    const response = JSON.parse(result);
+
+    if (response.error) {
+      ctx.status = response.status || 404;
+      ctx.body = response;
+    } else {
+      ctx.body = response;
+    }
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+// Create a user
+router.post('/api/wordpress/users', async (ctx) => {
+  try {
+    const result = await executeTool('wp_create_user', ctx.request.body);
+    const response = JSON.parse(result);
+
+    if (response.error) {
+      ctx.status = response.status || 400;
+      ctx.body = response;
+    } else {
+      ctx.status = 201;
+      ctx.body = response;
+    }
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+// Update a user
+router.put('/api/wordpress/users/:id', async (ctx) => {
+  try {
+    const id = Number(ctx.params.id);
+    const data = { id, ...(ctx.request.body as any) };
+    const result = await executeTool('wp_update_user', data);
+    const response = JSON.parse(result);
+
+    if (response.error) {
+      ctx.status = response.status || 400;
+      ctx.body = response;
+    } else {
+      ctx.body = response;
+    }
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+// Delete a user
+router.delete('/api/wordpress/users/:id', async (ctx) => {
+  try {
+    const id = Number(ctx.params.id);
+    const force = ctx.query.force === 'true';
+    const reassign = ctx.query.reassign ? Number(ctx.query.reassign) : undefined;
+    const result = await executeTool('wp_delete_user', { id, force, reassign });
+    const response = JSON.parse(result);
+
+    if (response.error) {
+      ctx.status = response.status || 400;
+      ctx.body = response;
+    } else {
+      ctx.body = response;
+    }
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+// Get settings
+router.get('/api/wordpress/settings', async (ctx) => {
+  try {
+    const result = await executeTool('wp_get_settings', {});
+    const response = JSON.parse(result);
+
+    if (response.error) {
+      ctx.status = response.status || 500;
+      ctx.body = response;
+    } else {
+      ctx.body = response;
+    }
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+// Update settings
+router.put('/api/wordpress/settings', async (ctx) => {
+  try {
+    const result = await executeTool('wp_update_settings', ctx.request.body);
+    const response = JSON.parse(result);
+
+    if (response.error) {
+      ctx.status = response.status || 400;
+      ctx.body = response;
+    } else {
+      ctx.body = response;
+    }
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+// Search
+router.get('/api/wordpress/search', async (ctx) => {
+  try {
+    const params: any = {};
+    if (ctx.query.search) params.search = ctx.query.search;
+    if (ctx.query.per_page) params.per_page = Number(ctx.query.per_page);
+    if (ctx.query.page) params.page = Number(ctx.query.page);
+    if (ctx.query.type) params.type = ctx.query.type;
+    if (ctx.query.subtype) params.subtype = ctx.query.subtype;
+
+    const result = await executeTool('wp_search', params);
+    const response = JSON.parse(result);
+
+    if (response.error) {
+      ctx.status = response.status || 500;
+      ctx.body = response;
+    } else {
+      ctx.body = response;
+    }
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+// List taxonomies
+router.get('/api/wordpress/taxonomies', async (ctx) => {
+  try {
+    const params: any = {};
+    if (ctx.query.type) params.type = ctx.query.type;
+
+    const result = await executeTool('wp_list_taxonomies', params);
+    const response = JSON.parse(result);
+
+    if (response.error) {
+      ctx.status = response.status || 500;
+      ctx.body = response;
+    } else {
+      ctx.body = response;
+    }
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+// Get a specific taxonomy
+router.get('/api/wordpress/taxonomies/:taxonomy', async (ctx) => {
+  try {
+    const taxonomy = ctx.params.taxonomy;
+    const result = await executeTool('wp_get_taxonomy', { taxonomy });
+    const response = JSON.parse(result);
+
+    if (response.error) {
+      ctx.status = response.status || 404;
       ctx.body = response;
     } else {
       ctx.body = response;

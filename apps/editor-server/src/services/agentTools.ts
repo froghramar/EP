@@ -561,6 +561,466 @@ export const tools: Anthropic.Tool[] = [
       },
     },
   },
+  {
+    name: 'wp_get_category',
+    description: 'Get a specific WordPress category by ID.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'number',
+          description: 'The category ID',
+        },
+      },
+      required: ['id'],
+    },
+  },
+  {
+    name: 'wp_update_category',
+    description: 'Update an existing WordPress category.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'number',
+          description: 'The category ID to update',
+        },
+        name: {
+          type: 'string',
+          description: 'The category name',
+        },
+        description: {
+          type: 'string',
+          description: 'The category description',
+        },
+        parent: {
+          type: 'number',
+          description: 'Parent category ID',
+        },
+      },
+      required: ['id'],
+    },
+  },
+  {
+    name: 'wp_delete_category',
+    description: 'Delete a WordPress category by ID.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'number',
+          description: 'The category ID to delete',
+        },
+        force: {
+          type: 'boolean',
+          description: 'Whether to bypass trash and force deletion (default: false)',
+        },
+      },
+      required: ['id'],
+    },
+  },
+  {
+    name: 'wp_get_tag',
+    description: 'Get a specific WordPress tag by ID.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'number',
+          description: 'The tag ID',
+        },
+      },
+      required: ['id'],
+    },
+  },
+  {
+    name: 'wp_update_tag',
+    description: 'Update an existing WordPress tag.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'number',
+          description: 'The tag ID to update',
+        },
+        name: {
+          type: 'string',
+          description: 'The tag name',
+        },
+        description: {
+          type: 'string',
+          description: 'The tag description',
+        },
+      },
+      required: ['id'],
+    },
+  },
+  {
+    name: 'wp_delete_tag',
+    description: 'Delete a WordPress tag by ID.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'number',
+          description: 'The tag ID to delete',
+        },
+        force: {
+          type: 'boolean',
+          description: 'Whether to bypass trash and force deletion (default: false)',
+        },
+      },
+      required: ['id'],
+    },
+  },
+  {
+    name: 'wp_get_comment',
+    description: 'Get a specific WordPress comment by ID.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'number',
+          description: 'The comment ID',
+        },
+      },
+      required: ['id'],
+    },
+  },
+  {
+    name: 'wp_update_comment',
+    description: 'Update an existing WordPress comment.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'number',
+          description: 'The comment ID to update',
+        },
+        content: {
+          type: 'string',
+          description: 'The comment content',
+        },
+        status: {
+          type: 'string',
+          description: 'Comment status',
+          enum: ['approved', 'hold', 'spam', 'trash'],
+        },
+      },
+      required: ['id'],
+    },
+  },
+  {
+    name: 'wp_delete_comment',
+    description: 'Delete a WordPress comment by ID.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'number',
+          description: 'The comment ID to delete',
+        },
+        force: {
+          type: 'boolean',
+          description: 'Whether to bypass trash and force deletion (default: false)',
+        },
+      },
+      required: ['id'],
+    },
+  },
+  {
+    name: 'wp_get_user',
+    description: 'Get a specific WordPress user by ID.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'number',
+          description: 'The user ID',
+        },
+      },
+      required: ['id'],
+    },
+  },
+  {
+    name: 'wp_create_user',
+    description: 'Create a new WordPress user.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        username: {
+          type: 'string',
+          description: 'Login name for the user',
+        },
+        email: {
+          type: 'string',
+          description: 'Email address for the user',
+        },
+        password: {
+          type: 'string',
+          description: 'Password for the user (never included in response)',
+        },
+        name: {
+          type: 'string',
+          description: 'Display name for the user',
+        },
+        first_name: {
+          type: 'string',
+          description: 'First name for the user',
+        },
+        last_name: {
+          type: 'string',
+          description: 'Last name for the user',
+        },
+        roles: {
+          type: 'array',
+          description: 'Roles assigned to the user',
+          items: { type: 'string' },
+        },
+      },
+      required: ['username', 'email', 'password'],
+    },
+  },
+  {
+    name: 'wp_update_user',
+    description: 'Update an existing WordPress user.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'number',
+          description: 'The user ID to update',
+        },
+        username: {
+          type: 'string',
+          description: 'Login name for the user',
+        },
+        email: {
+          type: 'string',
+          description: 'Email address for the user',
+        },
+        password: {
+          type: 'string',
+          description: 'Password for the user',
+        },
+        name: {
+          type: 'string',
+          description: 'Display name for the user',
+        },
+        first_name: {
+          type: 'string',
+          description: 'First name for the user',
+        },
+        last_name: {
+          type: 'string',
+          description: 'Last name for the user',
+        },
+        roles: {
+          type: 'array',
+          description: 'Roles assigned to the user',
+          items: { type: 'string' },
+        },
+      },
+      required: ['id'],
+    },
+  },
+  {
+    name: 'wp_delete_user',
+    description: 'Delete a WordPress user by ID.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'number',
+          description: 'The user ID to delete',
+        },
+        reassign: {
+          type: 'number',
+          description: 'Reassign the deleted user\'s posts and links to this user ID',
+        },
+        force: {
+          type: 'boolean',
+          description: 'Required to be true, as users do not support trashing',
+        },
+      },
+      required: ['id', 'force'],
+    },
+  },
+  {
+    name: 'wp_update_media',
+    description: 'Update an existing WordPress media item.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'number',
+          description: 'The media ID to update',
+        },
+        title: {
+          type: 'string',
+          description: 'The title for the media item',
+        },
+        alt_text: {
+          type: 'string',
+          description: 'Alternative text for the media item',
+        },
+        caption: {
+          type: 'string',
+          description: 'Caption for the media item',
+        },
+        description: {
+          type: 'string',
+          description: 'Description for the media item',
+        },
+      },
+      required: ['id'],
+    },
+  },
+  {
+    name: 'wp_delete_media',
+    description: 'Delete a WordPress media item by ID.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'number',
+          description: 'The media ID to delete',
+        },
+        force: {
+          type: 'boolean',
+          description: 'Whether to bypass trash and force deletion (default: false)',
+        },
+      },
+      required: ['id'],
+    },
+  },
+  {
+    name: 'wp_get_settings',
+    description: 'Get WordPress site settings.',
+    input_schema: {
+      type: 'object',
+      properties: {},
+    },
+  },
+  {
+    name: 'wp_update_settings',
+    description: 'Update WordPress site settings.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        title: {
+          type: 'string',
+          description: 'Site title',
+        },
+        description: {
+          type: 'string',
+          description: 'Site tagline',
+        },
+        url: {
+          type: 'string',
+          description: 'Site URL',
+        },
+        email: {
+          type: 'string',
+          description: 'Site admin email address',
+        },
+        timezone: {
+          type: 'string',
+          description: 'Timezone string',
+        },
+        date_format: {
+          type: 'string',
+          description: 'Date format',
+        },
+        time_format: {
+          type: 'string',
+          description: 'Time format',
+        },
+        start_of_week: {
+          type: 'number',
+          description: 'Start of week (0=Sunday, 1=Monday, etc.)',
+        },
+        language: {
+          type: 'string',
+          description: 'Site language code',
+        },
+        use_smilies: {
+          type: 'boolean',
+          description: 'Convert emoticons to graphics on display',
+        },
+        default_category: {
+          type: 'number',
+          description: 'Default post category',
+        },
+        default_post_format: {
+          type: 'string',
+          description: 'Default post format',
+        },
+        posts_per_page: {
+          type: 'number',
+          description: 'Blog pages show at most',
+        },
+      },
+    },
+  },
+  {
+    name: 'wp_search',
+    description: 'Search WordPress content across posts, pages, and other post types.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        search: {
+          type: 'string',
+          description: 'Search keyword(s)',
+        },
+        per_page: {
+          type: 'number',
+          description: 'Number of results per page (default: 10, max: 100)',
+        },
+        page: {
+          type: 'number',
+          description: 'Page number for pagination (default: 1)',
+        },
+        type: {
+          type: 'string',
+          description: 'Limit results to a specific type',
+          enum: ['post', 'page', 'post-format', 'category', 'tag'],
+        },
+        subtype: {
+          type: 'string',
+          description: 'Limit results to posts of a specific post type',
+        },
+      },
+      required: ['search'],
+    },
+  },
+  {
+    name: 'wp_list_taxonomies',
+    description: 'List all registered WordPress taxonomies.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        type: {
+          type: 'string',
+          description: 'Limit results to taxonomies associated with a specific post type',
+        },
+      },
+    },
+  },
+  {
+    name: 'wp_get_taxonomy',
+    description: 'Get a specific WordPress taxonomy by slug.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        taxonomy: {
+          type: 'string',
+          description: 'The taxonomy slug (e.g., "category", "post_tag")',
+        },
+      },
+      required: ['taxonomy'],
+    },
+  },
 ];
 
 export interface ExecuteToolOptions {
@@ -954,6 +1414,290 @@ export async function executeTool(
           });
 
           return JSON.stringify({ success: true, data: response.data, message: 'Deleted successfully' });
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            return JSON.stringify({ error: error.message, status: error.response?.status, data: error.response?.data });
+          }
+          return JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' });
+        }
+      }
+
+      case 'wp_get_category':
+      case 'wp_get_tag':
+      case 'wp_get_comment':
+      case 'wp_get_user': {
+        if (!WORDPRESS_API_URL) {
+          return JSON.stringify({ error: 'WordPress API is not configured. Set WORDPRESS_API_URL in your environment.' });
+        }
+
+        const endpointMap: Record<string, string> = {
+          wp_get_category: '/wp/v2/categories',
+          wp_get_tag: '/wp/v2/tags',
+          wp_get_comment: '/wp/v2/comments',
+          wp_get_user: '/wp/v2/users',
+        };
+
+        try {
+          const config: any = {
+            method: 'GET',
+            url: `${WORDPRESS_API_URL}${endpointMap[toolName]}/${toolInput.id}`,
+            headers: { 'Content-Type': 'application/json' },
+          };
+
+          if (WORDPRESS_USERNAME && WORDPRESS_APP_PASSWORD) {
+            config.auth = { username: WORDPRESS_USERNAME, password: WORDPRESS_APP_PASSWORD };
+          }
+
+          const response = await axios(config);
+          return JSON.stringify({ success: true, data: response.data });
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            return JSON.stringify({ error: error.message, status: error.response?.status, data: error.response?.data });
+          }
+          return JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' });
+        }
+      }
+
+      case 'wp_create_user': {
+        if (!WORDPRESS_API_URL) {
+          return JSON.stringify({ error: 'WordPress API is not configured. Set WORDPRESS_API_URL in your environment.' });
+        }
+
+        if (!WORDPRESS_USERNAME || !WORDPRESS_APP_PASSWORD) {
+          return JSON.stringify({ error: 'WordPress authentication is required for creating users. Set WORDPRESS_USERNAME and WORDPRESS_APP_PASSWORD.' });
+        }
+
+        try {
+          const response = await axios({
+            method: 'POST',
+            url: `${WORDPRESS_API_URL}/wp/v2/users`,
+            data: toolInput,
+            headers: { 'Content-Type': 'application/json' },
+            auth: { username: WORDPRESS_USERNAME, password: WORDPRESS_APP_PASSWORD },
+          });
+
+          return JSON.stringify({ success: true, data: response.data, message: 'User created successfully' });
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            return JSON.stringify({ error: error.message, status: error.response?.status, data: error.response?.data });
+          }
+          return JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' });
+        }
+      }
+
+      case 'wp_update_category':
+      case 'wp_update_tag':
+      case 'wp_update_comment':
+      case 'wp_update_user':
+      case 'wp_update_media': {
+        if (!WORDPRESS_API_URL) {
+          return JSON.stringify({ error: 'WordPress API is not configured. Set WORDPRESS_API_URL in your environment.' });
+        }
+
+        if (!WORDPRESS_USERNAME || !WORDPRESS_APP_PASSWORD) {
+          return JSON.stringify({ error: 'WordPress authentication is required for updating content. Set WORDPRESS_USERNAME and WORDPRESS_APP_PASSWORD.' });
+        }
+
+        const endpointMap: Record<string, string> = {
+          wp_update_category: '/wp/v2/categories',
+          wp_update_tag: '/wp/v2/tags',
+          wp_update_comment: '/wp/v2/comments',
+          wp_update_user: '/wp/v2/users',
+          wp_update_media: '/wp/v2/media',
+        };
+
+        const { id, ...updateData } = toolInput;
+
+        try {
+          const response = await axios({
+            method: 'PUT',
+            url: `${WORDPRESS_API_URL}${endpointMap[toolName]}/${id}`,
+            data: updateData,
+            headers: { 'Content-Type': 'application/json' },
+            auth: { username: WORDPRESS_USERNAME, password: WORDPRESS_APP_PASSWORD },
+          });
+
+          return JSON.stringify({ success: true, data: response.data, message: 'Updated successfully' });
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            return JSON.stringify({ error: error.message, status: error.response?.status, data: error.response?.data });
+          }
+          return JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' });
+        }
+      }
+
+      case 'wp_delete_category':
+      case 'wp_delete_tag':
+      case 'wp_delete_comment':
+      case 'wp_delete_user':
+      case 'wp_delete_media': {
+        if (!WORDPRESS_API_URL) {
+          return JSON.stringify({ error: 'WordPress API is not configured. Set WORDPRESS_API_URL in your environment.' });
+        }
+
+        if (!WORDPRESS_USERNAME || !WORDPRESS_APP_PASSWORD) {
+          return JSON.stringify({ error: 'WordPress authentication is required for deleting content. Set WORDPRESS_USERNAME and WORDPRESS_APP_PASSWORD.' });
+        }
+
+        const endpointMap: Record<string, string> = {
+          wp_delete_category: '/wp/v2/categories',
+          wp_delete_tag: '/wp/v2/tags',
+          wp_delete_comment: '/wp/v2/comments',
+          wp_delete_user: '/wp/v2/users',
+          wp_delete_media: '/wp/v2/media',
+        };
+
+        try {
+          const params: any = {};
+          if (toolInput.force) {
+            params.force = true;
+          }
+          if (toolInput.reassign) {
+            params.reassign = toolInput.reassign;
+          }
+
+          const response = await axios({
+            method: 'DELETE',
+            url: `${WORDPRESS_API_URL}${endpointMap[toolName]}/${toolInput.id}`,
+            params,
+            headers: { 'Content-Type': 'application/json' },
+            auth: { username: WORDPRESS_USERNAME, password: WORDPRESS_APP_PASSWORD },
+          });
+
+          return JSON.stringify({ success: true, data: response.data, message: 'Deleted successfully' });
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            return JSON.stringify({ error: error.message, status: error.response?.status, data: error.response?.data });
+          }
+          return JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' });
+        }
+      }
+
+      case 'wp_get_settings': {
+        if (!WORDPRESS_API_URL) {
+          return JSON.stringify({ error: 'WordPress API is not configured. Set WORDPRESS_API_URL in your environment.' });
+        }
+
+        if (!WORDPRESS_USERNAME || !WORDPRESS_APP_PASSWORD) {
+          return JSON.stringify({ error: 'WordPress authentication is required for accessing settings. Set WORDPRESS_USERNAME and WORDPRESS_APP_PASSWORD.' });
+        }
+
+        try {
+          const response = await axios({
+            method: 'GET',
+            url: `${WORDPRESS_API_URL}/wp/v2/settings`,
+            headers: { 'Content-Type': 'application/json' },
+            auth: { username: WORDPRESS_USERNAME, password: WORDPRESS_APP_PASSWORD },
+          });
+
+          return JSON.stringify({ success: true, data: response.data });
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            return JSON.stringify({ error: error.message, status: error.response?.status, data: error.response?.data });
+          }
+          return JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' });
+        }
+      }
+
+      case 'wp_update_settings': {
+        if (!WORDPRESS_API_URL) {
+          return JSON.stringify({ error: 'WordPress API is not configured. Set WORDPRESS_API_URL in your environment.' });
+        }
+
+        if (!WORDPRESS_USERNAME || !WORDPRESS_APP_PASSWORD) {
+          return JSON.stringify({ error: 'WordPress authentication is required for updating settings. Set WORDPRESS_USERNAME and WORDPRESS_APP_PASSWORD.' });
+        }
+
+        try {
+          const response = await axios({
+            method: 'PUT',
+            url: `${WORDPRESS_API_URL}/wp/v2/settings`,
+            data: toolInput,
+            headers: { 'Content-Type': 'application/json' },
+            auth: { username: WORDPRESS_USERNAME, password: WORDPRESS_APP_PASSWORD },
+          });
+
+          return JSON.stringify({ success: true, data: response.data, message: 'Settings updated successfully' });
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            return JSON.stringify({ error: error.message, status: error.response?.status, data: error.response?.data });
+          }
+          return JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' });
+        }
+      }
+
+      case 'wp_search': {
+        if (!WORDPRESS_API_URL) {
+          return JSON.stringify({ error: 'WordPress API is not configured. Set WORDPRESS_API_URL in your environment.' });
+        }
+
+        try {
+          const config: any = {
+            method: 'GET',
+            url: `${WORDPRESS_API_URL}/wp/v2/search`,
+            params: toolInput,
+            headers: { 'Content-Type': 'application/json' },
+          };
+
+          if (WORDPRESS_USERNAME && WORDPRESS_APP_PASSWORD) {
+            config.auth = { username: WORDPRESS_USERNAME, password: WORDPRESS_APP_PASSWORD };
+          }
+
+          const response = await axios(config);
+          return JSON.stringify({ success: true, data: response.data, total: response.headers['x-wp-total'], totalPages: response.headers['x-wp-totalpages'] });
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            return JSON.stringify({ error: error.message, status: error.response?.status, data: error.response?.data });
+          }
+          return JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' });
+        }
+      }
+
+      case 'wp_list_taxonomies': {
+        if (!WORDPRESS_API_URL) {
+          return JSON.stringify({ error: 'WordPress API is not configured. Set WORDPRESS_API_URL in your environment.' });
+        }
+
+        try {
+          const config: any = {
+            method: 'GET',
+            url: `${WORDPRESS_API_URL}/wp/v2/taxonomies`,
+            params: toolInput,
+            headers: { 'Content-Type': 'application/json' },
+          };
+
+          if (WORDPRESS_USERNAME && WORDPRESS_APP_PASSWORD) {
+            config.auth = { username: WORDPRESS_USERNAME, password: WORDPRESS_APP_PASSWORD };
+          }
+
+          const response = await axios(config);
+          return JSON.stringify({ success: true, data: response.data });
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            return JSON.stringify({ error: error.message, status: error.response?.status, data: error.response?.data });
+          }
+          return JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' });
+        }
+      }
+
+      case 'wp_get_taxonomy': {
+        if (!WORDPRESS_API_URL) {
+          return JSON.stringify({ error: 'WordPress API is not configured. Set WORDPRESS_API_URL in your environment.' });
+        }
+
+        try {
+          const config: any = {
+            method: 'GET',
+            url: `${WORDPRESS_API_URL}/wp/v2/taxonomies/${toolInput.taxonomy}`,
+            headers: { 'Content-Type': 'application/json' },
+          };
+
+          if (WORDPRESS_USERNAME && WORDPRESS_APP_PASSWORD) {
+            config.auth = { username: WORDPRESS_USERNAME, password: WORDPRESS_APP_PASSWORD };
+          }
+
+          const response = await axios(config);
+          return JSON.stringify({ success: true, data: response.data });
         } catch (error) {
           if (axios.isAxiosError(error)) {
             return JSON.stringify({ error: error.message, status: error.response?.status, data: error.response?.data });
