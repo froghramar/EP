@@ -29,3 +29,8 @@ export const PORT = parseInt(process.env.PORT || '3001', 10);
 // Claude AI Configuration
 export const CLAUDE_MODEL = 'claude-sonnet-4-5';
 
+// WordPress REST API Configuration
+export const WORDPRESS_API_URL = process.env.WORDPRESS_API_URL; // e.g., https://example.com/wp-json
+export const WORDPRESS_USERNAME = process.env.WORDPRESS_USERNAME;
+export const WORDPRESS_APP_PASSWORD = process.env.WORDPRESS_APP_PASSWORD;
+
