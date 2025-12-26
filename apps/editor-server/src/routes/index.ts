@@ -2,6 +2,7 @@ import Router from '@koa/router';
 import filesRouter from './files';
 import gitRouter from './git';
 import chatRouter from './chat';
+import wordpressRouter from './wordpress';
 
 const router = new Router();
 
@@ -14,6 +15,9 @@ router.use(gitRouter.allowedMethods());
 
 router.use(chatRouter.routes());
 router.use(chatRouter.allowedMethods());
+
+router.use(wordpressRouter.routes());
+router.use(wordpressRouter.allowedMethods());
 
 export default router;
 
