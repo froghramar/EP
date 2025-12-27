@@ -223,3 +223,59 @@ GET http://localhost:3001/api/wordpress/users?roles=administrator
 
 ### List users with pagination
 GET http://localhost:3001/api/wordpress/users?per_page=5&page=1
+
+###############################################################################
+### PLUGINS
+###############################################################################
+
+### List all plugins
+GET http://localhost:3001/api/wordpress/plugins
+
+### List active plugins only
+GET http://localhost:3001/api/wordpress/plugins?status=active
+
+### List inactive plugins only
+GET http://localhost:3001/api/wordpress/plugins?status=inactive
+
+### Search plugins
+GET http://localhost:3001/api/wordpress/plugins?search=akismet
+
+### Get specific plugin by slug
+GET http://localhost:3001/api/wordpress/plugins/akismet/akismet.php
+
+### Install a plugin from WordPress.org (inactive by default)
+POST http://localhost:3001/api/wordpress/plugins
+Content-Type: application/json
+
+{
+  "slug": "classic-editor",
+  "status": "inactive"
+}
+
+### Install and activate a plugin
+POST http://localhost:3001/api/wordpress/plugins
+Content-Type: application/json
+
+{
+  "slug": "contact-form-7",
+  "status": "active"
+}
+
+### Activate a plugin
+PUT http://localhost:3001/api/wordpress/plugins/hello-dolly/hello.php
+Content-Type: application/json
+
+{
+  "status": "active"
+}
+
+### Deactivate a plugin
+PUT http://localhost:3001/api/wordpress/plugins/akismet/akismet.php
+Content-Type: application/json
+
+{
+  "status": "inactive"
+}
+
+### Delete/uninstall a plugin (must be inactive first)
+DELETE http://localhost:3001/api/wordpress/plugins/hello-dolly/hello.php
