@@ -1008,13 +1008,13 @@ export const wordpressTools: Anthropic.Tool[] = [
   },
   {
     name: 'wp_delete_plugin',
-    description: 'Delete a WordPress plugin.',
+    description: 'Delete/uninstall a WordPress plugin completely from the site. Use this tool when you need to remove a plugin entirely from WordPress. The plugin must be inactive before deletion. This permanently removes the plugin files from the server.',
     input_schema: {
       type: 'object',
       properties: {
         plugin: {
           type: 'string',
-          description: 'The plugin slug (e.g., "akismet/akismet")',
+          description: 'The plugin slug in the format "folder/file.php" (e.g., "akismet/akismet.php", "hello-dolly/hello.php"). This is the unique identifier for the plugin.',
         },
       },
       required: ['plugin'],
