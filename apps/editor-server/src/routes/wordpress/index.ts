@@ -805,4 +805,102 @@ router.get('/api/wordpress/taxonomies/:taxonomy', async (ctx) => {
   }
 });
 
+// List WordPress plugins
+router.get('/api/wordpress/plugins', async (ctx) => {
+  try {
+    const params: any = {};
+    if (ctx.query.status) params.status = ctx.query.status;
+    if (ctx.query.search) params.search = ctx.query.search;
+
+    const result = await executeTool('wp_list_plugins', params);
+    const response = JSON.parse(result);
+
+    if (response.error) {
+      ctx.status = response.status || 500;
+      ctx.body = response;
+    } else {
+      ctx.body = response;
+    }
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+// Get a specific WordPress plugin
+router.get('/api/wordpress/plugins/:plugin', async (ctx) => {
+  try {
+    const plugin = ctx.params.plugin;
+    const result = await executeTool('wp_get_plugin', { plugin });
+    const response = JSON.parse(result);
+
+    if (response.error) {
+      ctx.status = response.status || 404;
+      ctx.body = response;
+    } else {
+      ctx.body = response;
+    }
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+// Install a new WordPress plugin
+router.post('/api/wordpress/plugins', async (ctx) => {
+  try {
+    const result = await executeTool('wp_create_plugin', ctx.request.body);
+    const response = JSON.parse(result);
+
+    if (response.error) {
+      ctx.status = response.status || 400;
+      ctx.body = response;
+    } else {
+      ctx.status = 201;
+      ctx.body = response;
+    }
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+// Update a WordPress plugin (activate/deactivate)
+router.put('/api/wordpress/plugins/:plugin', async (ctx) => {
+  try {
+    const plugin = ctx.params.plugin;
+    const result = await executeTool('wp_update_plugin', { plugin, ...(ctx.request.body as any) });
+    const response = JSON.parse(result);
+
+    if (response.error) {
+      ctx.status = response.status || 400;
+      ctx.body = response;
+    } else {
+      ctx.body = response;
+    }
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
+// Delete a WordPress plugin
+router.delete('/api/wordpress/plugins/:plugin', async (ctx) => {
+  try {
+    const plugin = ctx.params.plugin;
+    const result = await executeTool('wp_delete_plugin', { plugin });
+    const response = JSON.parse(result);
+
+    if (response.error) {
+      ctx.status = response.status || 400;
+      ctx.body = response;
+    } else {
+      ctx.body = response;
+    }
+  } catch (error) {
+    ctx.status = 500;
+    ctx.body = { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+});
+
 export default router;

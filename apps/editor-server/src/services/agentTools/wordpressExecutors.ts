@@ -492,6 +492,140 @@ export async function executeWordpressTool(toolName: string, toolInput: any): Pr
         }
       }
 
+      case 'wp_list_plugins': {
+        if (!WORDPRESS_API_URL) {
+          return JSON.stringify({ error: 'WordPress API is not configured. Set WORDPRESS_API_URL in your environment.' });
+        }
+
+        try {
+          const config: any = {
+            method: 'GET',
+            url: `${WORDPRESS_API_URL}/wp/v2/plugins`,
+            params: toolInput,
+            headers: { 'Content-Type': 'application/json' },
+          };
+
+          if (WORDPRESS_USERNAME && WORDPRESS_APP_PASSWORD) {
+            config.auth = { username: WORDPRESS_USERNAME, password: WORDPRESS_APP_PASSWORD };
+          }
+
+          const response = await axios(config);
+          return JSON.stringify({ success: true, data: response.data });
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            return JSON.stringify({ error: error.message, status: error.response?.status, data: error.response?.data });
+          }
+          return JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' });
+        }
+      }
+
+      case 'wp_get_plugin': {
+        if (!WORDPRESS_API_URL) {
+          return JSON.stringify({ error: 'WordPress API is not configured. Set WORDPRESS_API_URL in your environment.' });
+        }
+
+        try {
+          const config: any = {
+            method: 'GET',
+            url: `${WORDPRESS_API_URL}/wp/v2/plugins/${encodeURIComponent(toolInput.plugin)}`,
+            headers: { 'Content-Type': 'application/json' },
+          };
+
+          if (WORDPRESS_USERNAME && WORDPRESS_APP_PASSWORD) {
+            config.auth = { username: WORDPRESS_USERNAME, password: WORDPRESS_APP_PASSWORD };
+          }
+
+          const response = await axios(config);
+          return JSON.stringify({ success: true, data: response.data });
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            return JSON.stringify({ error: error.message, status: error.response?.status, data: error.response?.data });
+          }
+          return JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' });
+        }
+      }
+
+      case 'wp_create_plugin': {
+        if (!WORDPRESS_API_URL) {
+          return JSON.stringify({ error: 'WordPress API is not configured. Set WORDPRESS_API_URL in your environment.' });
+        }
+
+        try {
+          const config: any = {
+            method: 'POST',
+            url: `${WORDPRESS_API_URL}/wp/v2/plugins`,
+            data: toolInput,
+            headers: { 'Content-Type': 'application/json' },
+          };
+
+          if (WORDPRESS_USERNAME && WORDPRESS_APP_PASSWORD) {
+            config.auth = { username: WORDPRESS_USERNAME, password: WORDPRESS_APP_PASSWORD };
+          }
+
+          const response = await axios(config);
+          return JSON.stringify({ success: true, data: response.data });
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            return JSON.stringify({ error: error.message, status: error.response?.status, data: error.response?.data });
+          }
+          return JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' });
+        }
+      }
+
+      case 'wp_update_plugin': {
+        if (!WORDPRESS_API_URL) {
+          return JSON.stringify({ error: 'WordPress API is not configured. Set WORDPRESS_API_URL in your environment.' });
+        }
+
+        try {
+          const { plugin, ...data } = toolInput;
+          const config: any = {
+            method: 'PUT',
+            url: `${WORDPRESS_API_URL}/wp/v2/plugins/${encodeURIComponent(plugin)}`,
+            data: data,
+            headers: { 'Content-Type': 'application/json' },
+          };
+
+          if (WORDPRESS_USERNAME && WORDPRESS_APP_PASSWORD) {
+            config.auth = { username: WORDPRESS_USERNAME, password: WORDPRESS_APP_PASSWORD };
+          }
+
+          const response = await axios(config);
+          return JSON.stringify({ success: true, data: response.data });
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            return JSON.stringify({ error: error.message, status: error.response?.status, data: error.response?.data });
+          }
+          return JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' });
+        }
+      }
+
+      case 'wp_delete_plugin': {
+        if (!WORDPRESS_API_URL) {
+          return JSON.stringify({ error: 'WordPress API is not configured. Set WORDPRESS_API_URL in your environment.' });
+        }
+
+        try {
+          const config: any = {
+            method: 'DELETE',
+            url: `${WORDPRESS_API_URL}/wp/v2/plugins/${encodeURIComponent(toolInput.plugin)}`,
+            headers: { 'Content-Type': 'application/json' },
+          };
+
+          if (WORDPRESS_USERNAME && WORDPRESS_APP_PASSWORD) {
+            config.auth = { username: WORDPRESS_USERNAME, password: WORDPRESS_APP_PASSWORD };
+          }
+
+          const response = await axios(config);
+          return JSON.stringify({ success: true, data: response.data });
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            return JSON.stringify({ error: error.message, status: error.response?.status, data: error.response?.data });
+          }
+          return JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' });
+        }
+      }
+
       default:
         return JSON.stringify({ error: `Unknown WordPress tool: ${toolName}` });
     }

@@ -936,4 +936,88 @@ export const wordpressTools: Anthropic.Tool[] = [
       required: ['taxonomy'],
     },
   },
+  {
+    name: 'wp_list_plugins',
+    description: 'List all WordPress plugins.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        status: {
+          type: 'string',
+          description: 'Filter by plugin status',
+          enum: ['active', 'inactive'],
+        },
+        search: {
+          type: 'string',
+          description: 'Search plugins by keyword',
+        },
+      },
+    },
+  },
+  {
+    name: 'wp_get_plugin',
+    description: 'Get a specific WordPress plugin by slug.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        plugin: {
+          type: 'string',
+          description: 'The plugin slug (e.g., "akismet/akismet")',
+        },
+      },
+      required: ['plugin'],
+    },
+  },
+  {
+    name: 'wp_create_plugin',
+    description: 'Install a new WordPress plugin from the WordPress.org repository.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        slug: {
+          type: 'string',
+          description: 'The plugin slug from WordPress.org',
+        },
+        status: {
+          type: 'string',
+          description: 'The plugin status after installation',
+          enum: ['active', 'inactive'],
+        },
+      },
+      required: ['slug'],
+    },
+  },
+  {
+    name: 'wp_update_plugin',
+    description: 'Update a WordPress plugin (activate/deactivate).',
+    input_schema: {
+      type: 'object',
+      properties: {
+        plugin: {
+          type: 'string',
+          description: 'The plugin slug (e.g., "akismet/akismet")',
+        },
+        status: {
+          type: 'string',
+          description: 'The plugin status',
+          enum: ['active', 'inactive'],
+        },
+      },
+      required: ['plugin', 'status'],
+    },
+  },
+  {
+    name: 'wp_delete_plugin',
+    description: 'Delete a WordPress plugin.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        plugin: {
+          type: 'string',
+          description: 'The plugin slug (e.g., "akismet/akismet")',
+        },
+      },
+      required: ['plugin'],
+    },
+  },
 ];
