@@ -581,7 +581,7 @@ export async function executeWordpressTool(toolName: string, toolInput: any): Pr
           const { plugin, ...data } = toolInput;
           const config: any = {
             method: 'PUT',
-            url: `${WORDPRESS_API_URL}/wp/v2/plugins/${encodeURIComponent(plugin)}`,
+            url: `${WORDPRESS_API_URL}/wp/v2/plugins/${plugin}`,
             data: data,
             headers: { 'Content-Type': 'application/json' },
           };
@@ -608,7 +608,7 @@ export async function executeWordpressTool(toolName: string, toolInput: any): Pr
         try {
           const config: any = {
             method: 'DELETE',
-            url: `${WORDPRESS_API_URL}/wp/v2/plugins/${encodeURIComponent(toolInput.plugin)}`,
+            url: `${WORDPRESS_API_URL}/wp/v2/plugins/${toolInput.plugin}`,
             headers: { 'Content-Type': 'application/json' },
           };
 

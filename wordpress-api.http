@@ -241,7 +241,7 @@ GET http://localhost:3001/api/wordpress/plugins?status=inactive
 GET http://localhost:3001/api/wordpress/plugins?search=akismet
 
 ### Get specific plugin by slug
-GET http://localhost:3001/api/wordpress/plugins/akismet/akismet.php
+GET http://localhost:3001/api/wordpress/plugins/akismet%2Fakismet.php
 
 ### Install a plugin from WordPress.org (inactive by default)
 POST http://localhost:3001/api/wordpress/plugins
@@ -262,7 +262,7 @@ Content-Type: application/json
 }
 
 ### Activate a plugin
-PUT http://localhost:3001/api/wordpress/plugins/hello-dolly/hello.php
+PUT http://localhost:3001/api/wordpress/plugins/hello-dolly%2Fhello.php
 Content-Type: application/json
 
 {
@@ -270,7 +270,7 @@ Content-Type: application/json
 }
 
 ### Deactivate a plugin
-PUT http://localhost:3001/api/wordpress/plugins/akismet/akismet.php
+PUT http://localhost:3001/api/wordpress/plugins/akismet%2Fakismet.php
 Content-Type: application/json
 
 {
@@ -278,4 +278,4 @@ Content-Type: application/json
 }
 
 ### Delete/uninstall a plugin (must be inactive first)
-DELETE http://localhost:3001/api/wordpress/plugins/hello-dolly/hello.php
+DELETE http://localhost:3001/api/wordpress/plugins/user-role-editor%2Fuser-role-editor
