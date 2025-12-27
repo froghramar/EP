@@ -962,7 +962,7 @@ export const wordpressTools: Anthropic.Tool[] = [
       properties: {
         plugin: {
           type: 'string',
-          description: 'The plugin slug (e.g., "akismet/akismet")',
+          description: 'The plugin slug WITHOUT .php extension in the format "folder/file" (e.g., "akismet/akismet", "hello-dolly/hello", "user-role-editor/user-role-editor"). Do NOT include .php extension.',
         },
       },
       required: ['plugin'],
@@ -995,7 +995,7 @@ export const wordpressTools: Anthropic.Tool[] = [
       properties: {
         plugin: {
           type: 'string',
-          description: 'The plugin slug (e.g., "akismet/akismet")',
+          description: 'The plugin slug WITHOUT .php extension in the format "folder/file" (e.g., "akismet/akismet", "hello-dolly/hello", "user-role-editor/user-role-editor"). Do NOT include .php extension.',
         },
         status: {
           type: 'string',
@@ -1014,7 +1014,7 @@ export const wordpressTools: Anthropic.Tool[] = [
       properties: {
         plugin: {
           type: 'string',
-          description: 'The plugin slug in the format "folder/file.php" (e.g., "akismet/akismet.php", "hello-dolly/hello.php"). This is the unique identifier for the plugin.',
+          description: 'The plugin slug WITHOUT .php extension in the format "folder/file" (e.g., "akismet/akismet", "hello-dolly/hello", "user-role-editor/user-role-editor"). Do NOT include .php extension. IMPORTANT: Only the folder and file name, never include .php.',
         },
       },
       required: ['plugin'],

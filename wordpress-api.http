@@ -262,7 +262,7 @@ Content-Type: application/json
 }
 
 ### Activate a plugin
-PUT http://localhost:3001/api/wordpress/plugins/hello-dolly%2Fhello.php
+PUT http://localhost:3001/api/wordpress/plugins/user-role-editor%2Fuser-role-editor
 Content-Type: application/json
 
 {
@@ -270,7 +270,7 @@ Content-Type: application/json
 }
 
 ### Deactivate a plugin
-PUT http://localhost:3001/api/wordpress/plugins/akismet%2Fakismet.php
+PUT http://localhost:3001/api/wordpress/plugins/user-role-editor%2Fuser-role-editor
 Content-Type: application/json
 
 {
