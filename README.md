@@ -1,15 +1,24 @@
-# Editor Platform (EP)
+# Editor Platform (EP) - AI Agent-Powered Development Environment
 
-A modern, AI-powered code editor with BPMN 2.0 support, built as a full-stack web application. This platform combines a powerful Monaco-based code editor with an intelligent Claude AI assistant, comprehensive file management, Git integration, and business process modeling capabilities.
+An intelligent development platform featuring a Claude AI agent with 50+ specialized tools for autonomous code editing, file system operations, and WordPress content management. Built as a full-stack web application, EP combines a Monaco-based code editor with a powerful AI assistant that can read, write, search, and modify files, manage Git operations, and control WordPress sites through natural language conversations.
 
 ## ✨ Features
 
+### AI Agent (Primary Feature)
+- **50+ Specialized Tools** - Extensive tooling for file operations and WordPress management
+- **Claude Sonnet 4.5 Integration** - Powered by Anthropic's most advanced AI model
+- **Autonomous Code Editing** - AI can read, write, search, and modify files independently
+- **WordPress Automation** - Complete control over WordPress sites (posts, pages, media, users, etc.)
+- **Streaming Responses** - Real-time AI responses with live tool execution
+- **Conversation History** - SQLite-backed persistence with automatic cleanup
+- **Context-Aware** - Understands your codebase and project structure
+
 ### Core Editing
 - **Monaco Editor Integration** - Industry-standard code editor with syntax highlighting, IntelliSense, and multi-language support
-- **BPMN 2.0 Support** - Create and edit business process diagrams using bpmn-js
 - **Multi-tab Interface** - Work with multiple files simultaneously
 - **Real-time File Watching** - Automatic updates when files change on disk
 - **Markdown Preview** - Live rendering of markdown files
+- **BPMN 2.0 Support** - Create and edit business process diagrams using bpmn-js
 
 ### File Management
 - **Full File System Access** - Browse, create, edit, delete, move, and copy files
@@ -17,14 +26,7 @@ A modern, AI-powered code editor with BPMN 2.0 support, built as a full-stack we
 - **Path Security** - Built-in protection against accessing restricted folders
 - **File Tree Navigation** - Intuitive file explorer with expand/collapse functionality
 
-### AI Assistant
-- **Claude Integration** - Powered by Anthropic's Claude API
-- **Streaming Responses** - Real-time AI responses with streaming support
-- **Conversation History** - SQLite-backed conversation persistence
-- **Code-aware Context** - AI understands your codebase and can help with editing tasks
-- **50+ Agent Tools** - Extensive tooling for file operations and WordPress management
-
-#### Agent Capabilities
+### AI Agent Tool Breakdown
 
 The AI agent has access to powerful tools organized into two main categories:
 
@@ -91,12 +93,13 @@ EP/
 ### Tech Stack
 
 #### Backend (`editor-server`)
-- **Koa.js** - Lightweight web framework
+- **Anthropic SDK** - Claude Sonnet 4.5 AI agent with 50+ specialized tools
+- **Koa.js** - Lightweight, modern web framework
 - **TypeScript** - Type-safe development
-- **Anthropic SDK** - Claude AI integration
-- **better-sqlite3** - SQLite database for conversations
-- **simple-git** - Git operations
-- **ws** - WebSocket server
+- **better-sqlite3** - SQLite database for conversation persistence
+- **simple-git** - Git repository operations
+- **ws** - WebSocket server for real-time updates
+- **axios** - WordPress REST API integration
 
 #### Frontend (`editor-webclient`)
 - **React 19** - UI framework
@@ -114,7 +117,7 @@ EP/
 
 - **Node.js** >= 18
 - **pnpm** >= 9.0.0
-- **Anthropic API Key** (for AI features)
+- **Anthropic API Key** - Required for AI agent features ([Get one here](https://console.anthropic.com/))
 
 ### Installation
 
@@ -280,13 +283,32 @@ pnpm add <package> --filter=editor-webclient
 pnpm add <package> -w
 ```
 
-## 🔧 BPMN 2.0 Support
+## 🤖 Use Cases
 
-The editor includes **bpmn-js** for creating and editing BPMN 2.0 diagrams. This allows you to:
-- Create business process models
-- Edit BPMN diagrams visually
-- Import/export BPMN XML files
-- Integrate process modeling into your workflow
+The AI agent can help you with:
+
+### Development Tasks
+- **Code Generation** - Create entire features by writing multiple files
+- **Refactoring** - Analyze and improve code across your entire codebase
+- **Bug Fixes** - Search for issues and automatically apply fixes
+- **Documentation** - Generate or update documentation files
+- **Project Setup** - Scaffold new projects with proper structure
+
+### WordPress Management
+- **Content Creation** - Write and publish blog posts, pages, and media
+- **Bulk Operations** - Update multiple posts, categories, or tags at once
+- **Site Configuration** - Manage settings, users, and permissions
+- **Plugin Management** - Install, configure, and update WordPress plugins
+
+### File Operations
+- **Smart Search** - Find code patterns, functions, or specific text
+- **Batch Processing** - Perform operations on multiple files simultaneously
+- **Code Analysis** - Understand project structure and dependencies
+
+## 🔧 Additional Capabilities
+
+### BPMN 2.0 Support
+The editor includes **bpmn-js** for creating and editing business process diagrams with full import/export of BPMN XML files.
 
 ## 🤝 Contributing
 
@@ -303,12 +325,12 @@ Private project - not licensed for public use.
 
 ## 🙏 Acknowledgments
 
-- **Monaco Editor** - Microsoft's code editor
-- **bpmn-js** - BPMN 2.0 rendering and editing
-- **Anthropic Claude** - AI assistance
-- **Turborepo** - Monorepo build system
-- **Vite** - Next-generation frontend tooling
+- **Anthropic Claude Sonnet 4.5** - The brilliant AI agent powering autonomous development capabilities
+- **Monaco Editor** - Microsoft's industry-standard code editor
+- **Turborepo** - High-performance monorepo build system
+- **Vite** - Lightning-fast frontend tooling
+- **bpmn-js** - BPMN 2.0 diagram rendering and editing
 
 ---
 
-Built with ❤️ using TypeScript, React, and Koa.js
+Built with ❤️ using TypeScript, React, Koa.js, and powered by Claude AI
