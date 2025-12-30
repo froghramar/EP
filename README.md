@@ -22,6 +22,43 @@ A modern, AI-powered code editor with BPMN 2.0 support, built as a full-stack we
 - **Streaming Responses** - Real-time AI responses with streaming support
 - **Conversation History** - SQLite-backed conversation persistence
 - **Code-aware Context** - AI understands your codebase and can help with editing tasks
+- **50+ Agent Tools** - Extensive tooling for file operations and WordPress management
+
+#### Agent Capabilities
+
+The AI agent has access to powerful tools organized into two main categories:
+
+##### File System Tools (5 tools)
+- `file_read` - Read and examine code files, configurations, or any text-based files
+- `file_write` - Create new files or modify existing ones with full content control
+- `file_list` - Explore project structure by listing files and directories
+- `file_search` - Search for code patterns, functions, or specific text across the workspace
+- `file_delete` - Remove files or directories (with safety warnings)
+
+##### WordPress REST API Tools (44 tools)
+Complete WordPress content management capabilities:
+
+- **Posts** (5 tools) - List, get, create, update, and delete blog posts with full control over status, categories, tags, and featured media
+- **Pages** (5 tools) - Full CRUD operations for WordPress pages including templates and hierarchies
+- **Media** (4 tools) - List, retrieve, update, and delete media files (images, videos, documents)
+- **Categories** (5 tools) - Manage post categories with full taxonomy support
+- **Tags** (5 tools) - Create and manage post tags for content organization
+- **Comments** (5 tools) - List, get, create, update, and moderate comments
+- **Users** (5 tools) - User management including creation, updates, and role assignments
+- **Settings** (2 tools) - Get and update WordPress site settings
+- **Search** (1 tool) - Global search across all WordPress content types
+- **Taxonomies** (2 tools) - List and retrieve custom taxonomies
+- **Plugins** (5 tools) - List, get, create, update, and delete WordPress plugins
+
+The agent can perform complex multi-step operations like:
+- Analyzing code and suggesting improvements
+- Creating entire features by writing multiple files
+- Refactoring code across multiple files
+- Setting up WordPress sites with posts, pages, and media
+- Bulk operations on WordPress content
+- Searching and replacing patterns across the codebase
+
+**Note:** WordPress tools are only enabled when `WORDPRESS_API_URL` is configured in the environment variables. The agent will automatically adapt its capabilities based on available configuration.
 
 ### Version Control
 - **Git Integration** - Full Git operations support
@@ -101,6 +138,11 @@ EP/
    CORS_ORIGIN=http://localhost:5173
    CORS_CREDENTIALS=true
    ANTHROPIC_API_KEY=your_api_key_here
+   
+   # Optional: WordPress Integration
+   # WORDPRESS_API_URL=https://example.com/wp-json
+   # WORDPRESS_USERNAME=your_username
+   # WORDPRESS_APP_PASSWORD=your_app_password
    ```
 
 4. **Start development servers**
@@ -149,9 +191,15 @@ Serve the built frontend from `apps/editor-webclient/dist/`.
 - `POST /api/git/commit` - Commit changes
 
 #### Chat/AI
-- `POST /api/chat` - Send message to Claude AI
-- `GET /api/chat/conversations` - List conversations
-- WebSocket at `/ws` - Real-time file watching and AI streaming
+- `POST /api/chat` - Send message to Claude AI with streaming support
+  - Automatically routes tool calls to file system or WordPress executors
+  - Maintains conversation context and history
+  - Supports 50+ agent tools for file and WordPress operations
+- `GET /api/chat/conversations` - List all stored conversations
+- WebSocket at `/ws` - Real-time updates for:
+  - File system changes (create, modify, delete, rename)
+  - AI streaming responses
+  - Agent tool execution notifications
 
 ## ⚙️ Configuration
 
@@ -164,6 +212,9 @@ Serve the built frontend from `apps/editor-webclient/dist/`.
 | `CORS_ORIGIN` | Allowed CORS origins (comma-separated) | `*` |
 | `CORS_CREDENTIALS` | Enable CORS credentials | `true` |
 | `ANTHROPIC_API_KEY` | Your Anthropic API key for Claude | Required for AI features |
+| `WORDPRESS_API_URL` | WordPress REST API endpoint URL | Optional (e.g., `https://example.com/wp-json`) |
+| `WORDPRESS_USERNAME` | WordPress username for authentication | Optional (required if using WordPress tools) |
+| `WORDPRESS_APP_PASSWORD` | WordPress application password | Optional (required if using WordPress tools) |
 
 ### Database
 
